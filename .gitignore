@@ -4,3 +4,4 @@ __pycache__
 bamurai.egg-info
 data
 notebooks
+dist
