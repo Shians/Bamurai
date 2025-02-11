@@ -22,7 +22,7 @@ class Read:
     # validate the read
     def validate(self):
         if len(self.sequence) != len(self.quality):
-            raise ValueError("Sequence and quality strings must be of equal length.")
+            raise ValueError(f"Sequence and quality strings must be of equal length. Offending read: {self.read_id}")
         
     def is_valid(self):
         try:
