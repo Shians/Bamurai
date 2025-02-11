@@ -33,11 +33,6 @@ class Read:
     def to_fastq(self):
         return f"@{self.read_id}\n{self.sequence}\n+\n{self.quality}"
 
-def count_reads(bam_file):
-    """Count the number of reads in a BAM file."""
-    with pysam.AlignmentFile(bam_file, "rb") as bam:
-        return sum(1 for _ in bam)
-
 def qual_to_fastq_numpy(qualities):
     """Convert query_qualities to FASTQ QUAL using NumPy (Best for Large Arrays)."""
     return (np.array(qualities, dtype=np.uint8) + 33).tobytes().decode()

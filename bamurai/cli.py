@@ -2,6 +2,7 @@ import argparse
 import sys
 import time
 from bamurai.core import *
+from bamurai.stats import *
 
 def split_reads(args):
     # record runtime
@@ -56,7 +57,16 @@ def main():
     parser_split.add_argument("-o", "--output", type=str, nargs='?', help="Output file")
     parser_split.set_defaults(func=split_reads)
 
+    # Subparser for the "stats" command
+    parser_stat = subparsers.add_parser("stats", help="Calculate statistics for a BAM or FASTQ(.gz) file")
+    parser_stat.add_argument("reads", type=str, help="Input reads file (BAM)")
+    parser_stat.add_argument("--tsv", action="store_true", help="Output in TSV format", default=False)
+    parser_stat.set_defaults(func=file_stats)
+
+    # Subparser for the "divide" command
+
     args = parser.parse_args()
+
     if args.command:
         args.func(args)
     else:
