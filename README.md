@@ -1,6 +1,6 @@
 # Bamurai
 
-A Python package for splitting reads BAM files into smaller fragments.
+A Python package for splitting reads in BAM/FASTQ files into smaller fragments.
 
 ## Description
 
