@@ -16,10 +16,21 @@ pip install git+https://github.com/Shians/Bamurai.git
 
 To split a file into 10,000 bp reads
 ```bash
-bamurai split --input input.bam --target-length 10000 --output output.fastq
+bamurai split input.bam --target-length 10000 --output output.fastq
 ```
 
 To create a gzipped output file
 ```bash
-bamurai split --input input.bam --target-length 10000 | gzip > output.fastq.gz
+bamurai split input.bam --target-length 10000 | gzip > output.fastq.gz
+```
+
+To get stats from a BAM file
+```bash
+bamurai stats input.bam
+```
+
+To get stats from a FASTQ file or Gzipped FASTQ file
+```bash
+bamurai stats input.fastq
+bamurai stats input.fastq.gz
 ```
