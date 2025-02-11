@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Bamurai"
-version = { file = "VERSION" }
+dynamic = ["version"]
 description = "A package for splitting reads BAM files into smaller fragments."
 authors = [{ name = "Shian Su" }]
 readme = "README.md"
@@ -13,6 +13,9 @@ dependencies = [
     "pysam",
     "numpy",
 ]
+
+[tool.setuptools.dynamic]
+version = {file = "VERSION"}
 
 [project.optional-dependencies]
 dev = ["pytest", "black", "mypy"]
