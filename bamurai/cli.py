@@ -24,6 +24,14 @@ def main():
     parser_stat.add_argument("--tsv", action="store_true", help="Output in TSV format", default=False)
     parser_stat.set_defaults(func=file_stats)
 
+    # Subparser for the "divide" command
+    parser_divide = subparsers.add_parser("divide", help="Divide reads in a BAM into fixed number of fragments")
+    parser_divide.add_argument("reads", type=str, help="Input reads file (BAM)")
+    parser_divide.add_argument("-n", "--num_fragments", type=int, help="Number of fragments to divide reads into (default = 2)", default=2)
+    parser_divide.add_argument("-m", "--min_length", type=int, help="Minimum length for a fragment, reads will not be divided if resultant length is less than this (default = 100)", default=100)
+    parser_divide.add_argument("-o", "--output", type=str, nargs='?', help="Output file")
+    parser_divide.set_defaults(func=divide_reads)
+
     # Print version if "--version" is passed
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
 
