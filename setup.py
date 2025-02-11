@@ -1,14 +1,17 @@
 from setuptools import setup, find_packages
+import os
 
 def read_version():
-    with open("VERSION") as version_file:
-        return version_file.read().strip()
+    version_file = os.path.join("bamurai", "VERSION")
+    with open(version_file) as f:
+        return f.read().strip()
 
 setup(
     name="bamurai",
     version=read_version(),
     packages=find_packages(),
-    include_package_data=False,
+    include_package_data=True,
+    package_data={"bamurai": ["VERSION"]},
     entry_points={
         "console_scripts": [
             "bamurai=bamurai.cli:main",

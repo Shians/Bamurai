@@ -3,4 +3,6 @@ from .stats import *
 from .split import *
 from .divide import *
 
-__version__ = read_version()
+from .version import get_version
+
+__version__ = get_version()

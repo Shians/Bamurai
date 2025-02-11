@@ -15,10 +15,13 @@ dependencies = [
 ]
 
 [tool.setuptools.dynamic]
-version = {file = "VERSION"}
+version = {file = ["bamurai/VERSION"]}
 
 [project.optional-dependencies]
 dev = ["pytest", "black", "mypy"]
 
 [project.scripts]
 bamurai = "bamurai.cli:main"
+
+[tool.setuptools]
+package-data = {"bamurai" = ["VERSION"]}
