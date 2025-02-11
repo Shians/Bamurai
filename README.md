@@ -49,6 +49,8 @@ To get help on a specific command
 bamurai <command> --help
 ```
 
+### Splitting reads to target size
+
 To split a file into 10,000 bp reads
 ```bash
 bamurai split input.bam --target-length 10000 --output output.fastq
@@ -59,15 +61,19 @@ To create a gzipped output file
 bamurai split input.bam --target-length 10000 | gzip > output.fastq.gz
 ```
 
+### Dividing reads into a target number of pieces
+
 To divide reads into 2 pieces
 ```bash
-bamurai split input.bam --num_fragments 2 --output output.fastq
+bamurai divide input.bam --num_fragments 2 --output output.fastq
 ```
 
-To split reads into 2 pieces unless resultant fragments are less than 1000 bp
+To divide reads into 2 pieces unless resultant fragments are less than 1000 bp
 ```bash
-bamurai split input.bam --num_fragments 2 --min_length 1000 --output output.fastq
+bamurai divide input.bam --num_fragments 2 --min_length 1000 --output output.fastq
 ```
+
+### Getting statistics from a BAM or FASTQ file
 
 To get stats from a BAM file
 ```bash
