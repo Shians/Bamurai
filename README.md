@@ -8,8 +8,8 @@ Bamurai is a command-line tool for splitting reads in BAM/FASTQ files into small
 
 Currently there are 3 main features of Bamurai:
 
-1. Splitting reads in a BAM file to a target length
-2. Splitting reads in a BAM file to a target number of pieces per read
+1. Splitting reads in a file to a target length
+2. Splitting reads in a file to a target number of pieces per read
 3. Getting statistics from a BAM or FASTQ(.gz) file
 
 The `split` command splits reads into a target length, each read will be split into fragments as close to the target length as possible. Reads shorter than the target length will not be split.
