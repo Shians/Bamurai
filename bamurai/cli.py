@@ -3,6 +3,7 @@ import sys
 import time
 from bamurai.core import *
 from bamurai.stats import *
+from bamurai import __version__
 
 def split_reads(args):
     # record runtime
@@ -63,7 +64,8 @@ def main():
     parser_stat.add_argument("--tsv", action="store_true", help="Output in TSV format", default=False)
     parser_stat.set_defaults(func=file_stats)
 
-    # Subparser for the "divide" command
+    # Print version if "--version" is passed
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
 
     args = parser.parse_args()
 

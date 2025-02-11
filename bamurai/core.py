@@ -1,3 +1,4 @@
+import os
 import pysam
 import numpy as np
 from dataclasses import dataclass
@@ -89,3 +90,7 @@ def calculate_split(read, target_len: int):
 
     return [i * split_size for i in range(1, split_loc)]
 
+def read_version():
+    version_file = os.path.join(os.path.dirname(__file__), "..", "VERSION")
+    with open(version_file) as vf:
+        return vf.read().strip()

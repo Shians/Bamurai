@@ -1,8 +1,10 @@
+
 from .core import (
     Read,
     parse_reads,
     split_read,
-    calculate_split
+    calculate_split,
+    read_version
 )
 
 from .stats import (
@@ -13,4 +15,4 @@ from .stats import (
     fastq_file_stats
 )
 
-__version__ = "0.1.0"
+__version__ = read_version()

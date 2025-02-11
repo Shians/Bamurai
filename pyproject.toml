@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Bamurai"
-version = "0.1.0"
+version = { file = "VERSION" }
 description = "A package for splitting reads BAM files into smaller fragments."
 authors = [{ name = "Shian Su" }]
 readme = "README.md"
