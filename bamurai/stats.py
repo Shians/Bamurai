@@ -84,5 +84,5 @@ def file_stats(args):
         print(f"Statistics for {args.reads}:")
         print(f"  Total reads: {stats['total_reads']}")
         print(f"  Average read length: {stats['avg_read_len']}")
-        print(f"  Throughput: {stats['throughput']}")
+        print(f"  Throughput (Gb): {round(stats['throughput'] / 1e9, 2)}")
         print(f"  N50: {stats['n50']}")
