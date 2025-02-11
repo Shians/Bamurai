@@ -79,17 +79,6 @@ def split_read(read, at: list[int]):
 
     return reads
 
-def calculate_split(read, target_len: int):
-    """Calculate split locations for a read given a target length"""
-    if len(read) < target_len:
-        return []
-
-    # find the number of splits
-    split_loc = round(len(read) / target_len)
-    split_size = len(read) // split_loc
-
-    return [i * split_size for i in range(1, split_loc)]
-
 def read_version():
     version_file = os.path.join(os.path.dirname(__file__), "..", "VERSION")
     with open(version_file) as vf:
