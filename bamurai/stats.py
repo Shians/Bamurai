@@ -64,7 +64,7 @@ def fastq_file_stats(fastq_file):
 
 def is_fastq(path):
     """Check if a file is a FASTQ file."""
-    path = path.tolower()
+    path = path.lower()
     return path.endswith(".fastq") or \
         path.endswith(".fq") or \
         path.endswith(".fastq.gz") or \
