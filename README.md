@@ -4,7 +4,7 @@ A Python package for splitting reads in BAM/FASTQ files into smaller fragments.
 
 ## Description
 
-Bamurai is a command-line tool that splits reads in BAM files to a rough target length and outputs a FASTQ file. This is useful for testing the performance of bioinformatics tools on long-reads data at different read lengths.
+Bamurai is a command-line tool for splitting reads in BAM/FASTQ files into smaller fragments. It is designed to be fast and efficient, and can be used to split reads into a target length or a target number of pieces per read.
 
 Currently there are 3 main features of Bamurai:
 
