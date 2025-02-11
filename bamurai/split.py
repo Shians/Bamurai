@@ -50,7 +50,7 @@ def split_reads(args):
         for read in split:
             total_output_reads += 1
             read_lens.append(len(read))
-            
+
             if args.output:
                 f.write(read.to_fastq())
                 f.write("\n")

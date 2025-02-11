@@ -4,7 +4,7 @@ import sys
 def print_elapsed_time_pretty(start_time):
     """Print elapsed time in a pretty format."""
     elapsed_time = time.time() - start_time
-    
+
     hours = int(elapsed_time // 3600)
     minutes = int((elapsed_time % 3600) // 60)
     if minutes < 1:

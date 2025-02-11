@@ -21,19 +21,19 @@ class Read:
 
     def __len__(self):
         return len(self.sequence)
-    
+
     # validate the read
     def validate(self):
         if len(self.sequence) != len(self.quality):
             raise ValueError(f"Sequence and quality strings must be of equal length. Offending read: {self.read_id}")
-        
+
     def is_valid(self):
         try:
             self.validate()
             return True
         except ValueError:
             return False
-        
+
     def to_fastq(self):
         return f"@{self.read_id}\n{self.sequence}\n+\n{self.quality}"
 
@@ -72,7 +72,7 @@ def parse_reads(read_file):
                 f.readline()
                 quality = f.readline().strip()
                 yield Read(read_id[1:], sequence, quality)
-                
+
 
 def keep_n_bases(read, n, on = "left"):
     """Trim n bases of a read."""
@@ -86,9 +86,9 @@ def keep_n_bases(read, n, on = "left"):
     elif on == "right":
         seq = read.sequence[(read_len - n):]
         qual = read.quality[(read_len - n):]
-    
+
     return Read(read.read_id, seq, qual)
-    
+
 def split_read(read, at: list[int]):
     """Split a read at a given positions."""
     reads = []
@@ -96,7 +96,7 @@ def split_read(read, at: list[int]):
     if len(at) == 0:
         read.read_id = f'{read.read_id}_0'
         return [read]
-    
+
     count = 0
     start = 0
 
@@ -104,7 +104,7 @@ def split_read(read, at: list[int]):
         reads.append(Read(f'{read.read_id}_{count}', read.sequence[start:pos], read.quality[start:pos]))
         start = pos
         count += 1
-    
+
     reads.append(Read(f'{read.read_id}_{count}', read.sequence[start:], read.quality[start:]))
 
     return reads

@@ -7,10 +7,10 @@ def calculate_split_pieces(read, num_pieces: int, min_length: int = 0):
     """Calculate split locations for a read given a number of pieces"""
     if len(read)/num_pieces < min_length:
         return []
-    
+
     # find the number of splits
     split_size = len(read) // num_pieces
-    
+
     return [i * split_size for i in range(1, num_pieces)]
 
 def divide_reads(args):
@@ -50,7 +50,7 @@ def divide_reads(args):
         for read in split:
             total_output_reads += 1
             read_lens.append(len(read))
-            
+
             if args.output:
                 f.write(read.to_fastq())
                 f.write("\n")
