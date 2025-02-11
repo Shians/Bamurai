@@ -16,7 +16,7 @@ def bam_file_stats(bam_file):
     """Calculate statistics for a BAM file."""
     read_lengths = []
     total_reads = 0
-    for read in pysam.AlignmentFile(bam_file, "rb"):
+    for read in pysam.AlignmentFile(bam_file, "rb", check_sq=False):
         read_lengths.append(read.query_length)
         total_reads += 1
     

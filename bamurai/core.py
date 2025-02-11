@@ -40,7 +40,7 @@ def qual_to_fastq_numpy(qualities):
 
 def parse_reads(bam_file):
     """Parse reads from a BAM file."""
-    with pysam.AlignmentFile(bam_file, "rb") as bam:
+    with pysam.AlignmentFile(bam_file, "rb", check_sq=False) as bam:
         for read in bam:
             yield Read(read.query_name, read.query_sequence, qual_to_fastq_numpy(read.query_qualities))
 
