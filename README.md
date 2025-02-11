@@ -33,6 +33,14 @@ input.bam      8160    30638   250006998       82547
 
 ## Installation
 
+To install the released version of Bamurai from PyPI
+
+```bash
+pip install bamurai
+```
+
+To install the latest version of Bamurai from GitHub
+
 ```bash
 pip install git+https://github.com/Shians/Bamurai.git
 ```
