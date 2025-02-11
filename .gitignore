@@ -1,7 +1,10 @@
 .DS_Store
 .vscode
+
+release.sh
+
 __pycache__
 bamurai.egg-info
-data
-notebooks
-dist
+data/
+notebooks/
+dist/
