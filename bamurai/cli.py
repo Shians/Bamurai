@@ -1,9 +1,11 @@
 import argparse
 import textwrap
+
 from bamurai.core import *
 from bamurai.stats import *
 from bamurai.split import *
 from bamurai.divide import *
+from bamurai.validate import *
 from bamurai import __version__
 
 def main():
@@ -81,6 +83,29 @@ def main():
     parser_divide.add_argument("-m", "--min_length", type=int, help="Minimum length for a fragment, reads will not be divided if resultant length is less than this (default = 100)", default=100)
     parser_divide.add_argument("-o", "--output", type=str, nargs='?', help=output_file_arg_description)
     parser_divide.set_defaults(func=divide_reads)
+
+    # Subparser for the "validate" command
+    parser_validate = subparsers.add_parser(
+        "validate",
+        help="Validate a BAM or FASTQ file",
+        description = """
+        Validate a BAM or FASTQ file to ensure it is correctly formatted. The validation checks include:
+
+        For BAM files:
+        - Check that the header is present and correctly formatted
+        - Check that each record has a query name, sequence, and quality scores
+        - Check that the sequence and quality lengths are equal
+
+        For FASTQ files:
+        - Check that the header starts with '@'
+        - Check that the separator line starts with '+'
+        - Check that the sequence and quality lengths are equal
+        - Check that the sequence contains only valid IUPAC characters
+        """,
+        formatter_class=CustomFormatter
+    )
+    parser_validate.add_argument("reads", type=str, help=input_read_arg_description)
+    parser_validate.set_defaults(func=validate_file)
 
     # Print version if "--version" is passed
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
