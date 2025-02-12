@@ -51,7 +51,7 @@ def parse_reads(read_file):
 
     # if file is a FASTQ
     elif read_file.endswith(".fastq") or read_file.endswith(".fq"):
-        with open(read_file, "r") as f:
+        with open(read_file, "r", encoding='utf-8') as f:
             while True:
                 read_id = f.readline().strip()
                 if not read_id:
@@ -111,5 +111,5 @@ def split_read(read, at: list[int]):
 
 def read_version():
     version_file = os.path.join(os.path.dirname(__file__), "..", "VERSION")
-    with open(version_file) as vf:
+    with open(version_file, encoding='utf-8') as vf:
         return vf.read().strip()

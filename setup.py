@@ -3,7 +3,7 @@ import os
 
 def read_version():
     version_file = os.path.join("bamurai", "VERSION")
-    with open(version_file) as f:
+    with open(version_file, encoding='utf-8') as f:
         return f.read().strip()
 
 setup(
