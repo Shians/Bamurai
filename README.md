@@ -6,11 +6,12 @@ A Python package for splitting reads in BAM/FASTQ files into smaller fragments.
 
 Bamurai is a command-line tool for splitting reads in BAM/FASTQ files into smaller fragments. It is designed to be fast and efficient, and can be used to split reads into a target length or a target number of pieces per read.
 
-Currently there are 3 main features of Bamurai:
+These are the current features of Bamurai:
 
 1. Splitting reads in a file to a target length
 2. Splitting reads in a file to a target number of pieces per read
 3. Getting statistics from a BAM or FASTQ(.gz) file
+4. Basic validation of BAM and FASTQ(.gz) files
 
 The `split` command splits reads into a target length, each read will be split into fragments as close to the target length as possible. Reads shorter than the target length will not be split.
 
@@ -29,6 +30,11 @@ It can be used with the `--tsv` argument to output the statistics in a tab-separ
 ```bash
 file_name       total_reads     avg_read_len    throughput      n50
 input.bam      8160    30638   250006998       82547
+```
+
+The `validate` command will check the integrity of a BAM or FASTQ(.gz) file and output the following information if the file is valid.:
+```bash
+input.bam is a valid BAM file with 8160 records.
 ```
 
 ## Installation
@@ -92,4 +98,11 @@ To get stats from a FASTQ file or Gzipped FASTQ file
 ```bash
 bamurai stats input.fastq
 bamurai stats input.fastq.gz
+```
+
+### Validating BAM or FASTQ files
+
+To validate a BAM file
+```bash
+bamurai validate input.bam
 ```
