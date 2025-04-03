@@ -6,6 +6,8 @@ from bamurai.stats import *
 from bamurai.split import *
 from bamurai.divide import *
 from bamurai.validate import *
+from bamurai.chunk import *
+from bamurai.split_samples import *
 from bamurai import __version__
 
 def main():
@@ -106,6 +108,44 @@ def main():
     )
     parser_validate.add_argument("reads", type=str, help=input_read_arg_description)
     parser_validate.set_defaults(func=validate_file)
+
+    # Subparser for the "chunk" command
+    parser_chunk = subparsers.add_parser(
+        "chunk",
+        help="Split BAM/FASTQ file into chunks of specified size",
+        description="""
+        Split BAM/FASTQ file into chunks of at least the specified size. Output files
+        will be named <prefix>_1.fastq, <prefix>_2.fastq, etc. Each chunk will be at
+        least as large as the specified size, but may be larger to avoid splitting
+        individual reads.
+        """,
+        formatter_class=CustomFormatter
+    )
+    parser_chunk.add_argument("reads", type=str, help=input_read_arg_description)
+    parser_chunk.add_argument(
+        "-s", "--size",
+        type=str,
+        required=True,
+        help="Minimum chunk size (e.g. 1G, 100M, 1000K)"
+    )
+    parser_chunk.add_argument(
+        "-p", "--prefix",
+        type=str,
+        default="chunk",
+        help="Output file prefix (default: 'chunk')"
+    )
+    parser_chunk.set_defaults(func=chunk_reads)
+
+    # Subparser for the "extract_barcodes" command
+    split_parser = subparsers.add_parser(
+        "split_samples",
+        help="Split BAM file by donor ID"
+    )
+    split_parser.add_argument("--bam", required=True, help="Input BAM file")
+    split_parser.add_argument("--csv", required=True, help="two-column CSV file mapping barcodes to donor IDs, with headers 'barcode' and 'donor_id'")
+    split_parser.add_argument("--donor-id", required=True, help="Donor ID to extract")
+    split_parser.add_argument("--output-dir", required=True, help="Output directory for split BAM files")
+    split_parser.set_defaults(func=split_samples)
 
     # Print version if "--version" is passed
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
