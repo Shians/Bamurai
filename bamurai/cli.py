@@ -136,15 +136,14 @@ def main():
     )
     parser_chunk.set_defaults(func=chunk_reads)
 
-    # Subparser for the "extract_barcodes" command
+    # Subparser for the "split_samples" command
     split_parser = subparsers.add_parser(
         "split_samples",
         help="Split BAM file by donor ID"
     )
-    split_parser.add_argument("--bam", required=True, help="Input BAM file")
-    split_parser.add_argument("--csv", required=True, help="two-column CSV file mapping barcodes to donor IDs, with headers 'barcode' and 'donor_id'")
-    split_parser.add_argument("--donor-id", required=True, help="Donor ID to extract")
-    split_parser.add_argument("--output-dir", required=True, help="Output directory for split BAM files")
+    split_parser.add_argument("--bam", required=True, help="Input BAM file(s)", nargs='+')
+    split_parser.add_argument("--tsv", required=True, help="two-column TSV file mapping barcodes to donor IDs, with headers 'barcode' and 'donor_id'")
+    split_parser.add_argument("--output-dir", default="output", help="Output directory for split BAM files (default: 'output')")
     split_parser.set_defaults(func=split_samples)
 
     # Print version if "--version" is passed
