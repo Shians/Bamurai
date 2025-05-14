@@ -1,28 +1,15 @@
 import pysam
-import pandas as pd
 import os
-import argparse
 import tempfile
 import shutil
 import uuid
 from collections import defaultdict
 from typing import Dict, List, Set, Tuple
-
-def parse_barcode_donor_mapping(tsv_file: str) -> Dict[str, str]:
-    """
-    Parse a TSV file with barcode and donor_id columns
-
-    Args:
-        tsv_file: Path to TSV file containing barcode to donor mapping
-
-    Returns:
-        Dictionary mapping barcodes to donor IDs
-    """
-    df = pd.read_csv(tsv_file, sep='\t')
-    if 'barcode' not in df.columns or 'donor_id' not in df.columns:
-        raise ValueError("TSV file must contain 'barcode' and 'donor_id' columns")
-
-    return dict(zip(df.barcode, df.donor_id))
+from bamurai.utils_samples import (
+    parse_barcode_donor_mapping,
+    get_read_barcode,
+    concatenate_bam_files
+)
 
 def split_bam_by_donor(
     input_bam: str,
@@ -74,10 +61,8 @@ def split_bam_by_donor(
 
         # Process reads in the input BAM file
         for read in input_file:
-            # Extract barcode from read (assuming it's stored in a tag, e.g., 'CB')
-            barcode = None
-            if read.has_tag('CB'):
-                barcode = read.get_tag('CB')
+            # Extract barcode from read
+            barcode = get_read_barcode(read)
 
             # Determine which donor the read belongs to
             donor_id = barcode_donor_map.get(barcode, "unmapped") if barcode else "unmapped"
@@ -91,30 +76,6 @@ def split_bam_by_donor(
 
     print(f"Split {input_bam} into {len(unique_donors)} temporary donor files, plus unmapped reads")
     return unique_donors, temp_files
-
-def concatenate_bam_files(file_list: List[str], output_path: str) -> None:
-    """
-    Concatenate multiple BAM files into a single file
-
-    Args:
-        file_list: List of BAM files to concatenate
-        output_path: Path to write the concatenated BAM file
-    """
-    if not file_list:
-        return
-
-    # Open the first file to use as a template
-    with pysam.AlignmentFile(file_list[0], "rb") as template:
-        # Create the output file using the template
-        with pysam.AlignmentFile(output_path, "wb", template=template) as outfile:
-            # Iterate through all input files
-            for bam_file in file_list:
-                with pysam.AlignmentFile(bam_file, "rb") as infile:
-                    # Copy all reads from the input file to the output file
-                    for read in infile:
-                        outfile.write(read)
-
-    print(f"Concatenated {len(file_list)} files into {output_path}")
 
 def split_samples(args):
     # Parse barcode-to-donor mapping

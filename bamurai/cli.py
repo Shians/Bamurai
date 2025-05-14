@@ -8,6 +8,7 @@ from bamurai.divide import *
 from bamurai.validate import *
 from bamurai.chunk import *
 from bamurai.split_samples import *
+from bamurai.extract_sample import *
 from bamurai import __version__
 
 def main():
@@ -145,6 +146,17 @@ def main():
     split_parser.add_argument("--tsv", required=True, help="two-column TSV file mapping barcodes to donor IDs, with headers 'barcode' and 'donor_id'")
     split_parser.add_argument("--output-dir", default="output", help="Output directory for split BAM files (default: 'output')")
     split_parser.set_defaults(func=split_samples)
+
+    # Subparser for the "extract_sample" command
+    extract_parser = subparsers.add_parser(
+        "extract_sample",
+        help="Extract all reads for a given donor_id from a BAM file using a barcode-to-donor mapping"
+    )
+    extract_parser.add_argument("--bam", required=True, help="Input BAM file")
+    extract_parser.add_argument("--tsv", required=True, help="TSV file mapping barcodes to donor IDs, with headers 'barcode' and 'donor_id'")
+    extract_parser.add_argument("--donor-id", required=True, help="Donor ID to extract")
+    extract_parser.add_argument("--output", required=True, help="Output BAM file for extracted reads")
+    extract_parser.set_defaults(func=extract_sample)
 
     # Print version if "--version" is passed
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
