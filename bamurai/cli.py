@@ -150,9 +150,9 @@ def main():
     # Subparser for the "extract_sample" command
     extract_parser = subparsers.add_parser(
         "extract_sample",
-        help="Extract all reads for a given donor_id from a BAM file using a barcode-to-donor mapping"
+        help="Extract all reads for a given donor_id from BAM file(s) using a barcode-to-donor mapping"
     )
-    extract_parser.add_argument("--bam", required=True, help="Input BAM file")
+    extract_parser.add_argument("--bam", required=True, help="Input BAM file(s)", nargs='+')
     extract_parser.add_argument("--tsv", required=True, help="TSV file mapping barcodes to donor IDs, with headers 'barcode' and 'donor_id'")
     extract_parser.add_argument("--donor-id", required=True, help="Donor ID to extract")
     extract_parser.add_argument("--output", required=True, help="Output BAM file for extracted reads")

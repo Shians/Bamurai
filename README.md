@@ -106,3 +106,40 @@ To validate a BAM file
 ```bash
 bamurai validate input.bam
 ```
+
+### Working with multi-sample BAM files
+
+Bamurai provides commands for processing BAM files with multiple samples based on barcode information.
+
+#### Splitting BAM files by donor ID
+
+To split a BAM file into multiple BAM files, one for each donor ID:
+
+```bash
+bamurai split_samples --bam input.bam --tsv barcode_to_donor.tsv --output-dir donor_bams
+```
+
+The TSV file should contain at least two columns with headers 'barcode' and 'donor_id'. Each row maps a barcode to a donor ID.
+
+You can process multiple BAM files at once:
+
+```bash
+bamurai split_samples --bam input1.bam input2.bam --tsv barcode_to_donor.tsv --output-dir donor_bams
+```
+
+#### Extracting reads for a specific donor
+
+To extract all reads belonging to a specific donor from a BAM file:
+
+```bash
+bamurai extract_sample --bam input.bam --tsv barcode_to_donor.tsv --donor-id donor1 --output donor1.bam
+```
+
+You can also process multiple BAM files at once, combining all donor-specific reads into a single output file:
+
+```bash
+bamurai extract_sample --bam input1.bam input2.bam input3.bam --tsv barcode_to_donor.tsv --donor-id donor1 --output donor1.bam
+```
+
+This command will extract all reads with barcodes belonging to the specified donor ID and write them to a new BAM file.
+
