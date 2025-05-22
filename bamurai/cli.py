@@ -158,6 +158,16 @@ def main():
     extract_parser.add_argument("--output", required=True, help="Output BAM file for extracted reads")
     extract_parser.set_defaults(func=extract_sample)
 
+    # Subparser for the "assign_sample" command
+    assign_parser = subparsers.add_parser(
+        "assign_sample",
+        help="Assign donor_id to RG tag in BAM file using barcode-to-donor mapping"
+    )
+    assign_parser.add_argument("--bam", required=True, help="Input BAM file", nargs='+')
+    assign_parser.add_argument("--tsv", required=True, help="TSV file mapping barcodes to donor IDs, with headers 'barcode' and 'donor_id'")
+    assign_parser.add_argument("--output", required=True, help="Output BAM file with RG tags assigned")
+    assign_parser.set_defaults(func=assign_samples)
+
     # Print version if "--version" is passed
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
 
