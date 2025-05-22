@@ -161,7 +161,7 @@ def main():
 
     # Subparser for the "assign_sample" command
     assign_parser = subparsers.add_parser(
-        "assign_sample",
+        "assign_samples",
         help="Assign donor_id to RG tag in BAM file using barcode-to-donor mapping"
     )
     assign_parser.add_argument("--bam", required=True, help="Input BAM file")
