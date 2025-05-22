@@ -9,6 +9,7 @@ from bamurai.validate import *
 from bamurai.chunk import *
 from bamurai.split_samples import *
 from bamurai.extract_sample import *
+from bamurai.assign_samples import *
 from bamurai import __version__
 
 def main():
