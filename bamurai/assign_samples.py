@@ -23,7 +23,7 @@ def assign_samples(args):
     with tempfile.NamedTemporaryFile(suffix='.bam', delete=False) as tmpfile:
         tmp_output = tmpfile.name
     try:
-        with pysam.AlignmentFile(args.bam[0], "rb") as infile:
+        with pysam.AlignmentFile(args.bam, "rb") as infile:
             header = infile.header.to_dict()
             # Add RG records for each donor_id
             donor_ids = set(barcode_to_donor.values())
