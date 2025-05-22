@@ -164,7 +164,7 @@ def main():
         "assign_sample",
         help="Assign donor_id to RG tag in BAM file using barcode-to-donor mapping"
     )
-    assign_parser.add_argument("--bam", required=True, help="Input BAM file", nargs='+')
+    assign_parser.add_argument("--bam", required=True, help="Input BAM file")
     assign_parser.add_argument("--tsv", required=True, help="TSV file mapping barcodes to donor IDs, with headers 'barcode' and 'donor_id'")
     assign_parser.add_argument("--output", required=True, help="Output BAM file with RG tags assigned")
     assign_parser.set_defaults(func=assign_samples)
