@@ -143,3 +143,25 @@ bamurai extract_sample --bam input1.bam input2.bam input3.bam --tsv barcode_to_d
 
 This command will extract all reads with barcodes belonging to the specified donor ID and write them to a new BAM file.
 
+### Assigning samples to barcodes
+
+The `assign_samples` command assigns donor IDs to barcodes based on a provided TSV mapping file. This is useful for annotating barcodes in single-cell data.
+
+To assign donor IDs to barcodes in a TSV file:
+
+```bash
+bamurai assign_samples --barcodes barcodes.tsv --tsv barcode_to_donor.tsv --output assigned_barcodes.tsv
+```
+
+- `barcodes.tsv` should contain a list of barcodes (one per line or as a column in a table).
+- `barcode_to_donor.tsv` should have at least two columns: 'barcode' and 'donor_id'.
+- The output file `assigned_barcodes.tsv` will contain the barcodes with their assigned donor IDs.
+
+You can also specify a custom column name for barcodes in the input file:
+
+```bash
+bamurai assign_samples --barcodes barcodes.tsv --tsv barcode_to_donor.tsv --barcode-column cell_barcode --output assigned_barcodes.tsv
+```
+
+This will use the column 'cell_barcode' in `barcodes.tsv` as the barcode column.
+
