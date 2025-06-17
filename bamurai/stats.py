@@ -1,5 +1,6 @@
 import pysam
 import gzip
+from bamurai.utils import is_fastq
 
 def calc_n50(read_lengths):
     """Calculate the N50 statistic for a list of read lengths."""
@@ -61,14 +62,6 @@ def fastq_file_stats(fastq_file):
         "throughput": throughput,
         "n50": n50
     }
-
-def is_fastq(path):
-    """Check if a file is a FASTQ file."""
-    path = path.lower()
-    return path.endswith(".fastq") or \
-        path.endswith(".fq") or \
-        path.endswith(".fastq.gz") or \
-        path.endswith(".fq.gz")
 
 def file_stats(args):
     if args.reads.endswith(".bam"):

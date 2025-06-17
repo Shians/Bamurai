@@ -8,3 +8,4 @@ bamurai.egg-info
 data/
 notebooks/
 dist/
+tests/

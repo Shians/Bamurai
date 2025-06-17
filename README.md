@@ -1,6 +1,6 @@
 # Bamurai
 
-A Python package for splitting reads in BAM/FASTQ files into smaller fragments.
+A Python toolkit for manipulating BAM and FASTQ files, designed to split reads into smaller fragments, extract statistics, validate files, and manage multi-sample data.
 
 ## Description
 
@@ -111,20 +111,22 @@ bamurai validate input.bam
 
 Bamurai provides commands for processing BAM files with multiple samples based on barcode information.
 
-#### Splitting BAM files by donor ID
+#### Splitting BAM or FASTQ files by donor ID
 
-To split a BAM file into multiple BAM files, one for each donor ID:
+To split a BAM or FASTQ file into multiple files, one for each donor ID:
 
 ```bash
-bamurai split_samples --bam input.bam --tsv barcode_to_donor.tsv --output-dir donor_bams
+bamurai split_samples --input input.bam --tsv barcode_to_donor.tsv --output-dir donor_bams
+bamurai split_samples --input input.fastq.gz --tsv barcode_to_donor.tsv --output-dir donor_fastqs
 ```
 
 The TSV file should contain at least two columns with headers 'barcode' and 'donor_id'. Each row maps a barcode to a donor ID.
 
-You can process multiple BAM files at once:
+You can process multiple BAM or FASTQ files at once:
 
 ```bash
-bamurai split_samples --bam input1.bam input2.bam --tsv barcode_to_donor.tsv --output-dir donor_bams
+bamurai split_samples --input input1.bam input2.bam --tsv barcode_to_donor.tsv --output-dir donor_bams
+bamurai split_samples --input input1.fastq.gz input2.fastq.gz --tsv barcode_to_donor.tsv --output-dir donor_fastqs
 ```
 
 #### Extracting reads for a specific donor

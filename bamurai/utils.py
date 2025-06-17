@@ -21,3 +21,11 @@ def print_elapsed_time_pretty(start_time):
     # above 1 hour print in hours, minutes and seconds
     else:
         print(f"Time elapsed: {hours}h {minutes}m {seconds}s", file=sys.stderr)
+
+def is_fastq(path):
+    """Check if a file is a FASTQ file."""
+    path = path.lower()
+    return path.endswith(".fastq") or \
+        path.endswith(".fq") or \
+        path.endswith(".fastq.gz") or \
+        path.endswith(".fq.gz")

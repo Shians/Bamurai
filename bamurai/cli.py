@@ -78,7 +78,7 @@ def main():
         "divide",
         help="Divide reads in a BAM/FASTQ into fixed number of fragments",
         description = """
-        Divide reads in a BAM/FASTQ file into a fixed number of fragments. The output will be in FASTQ format written to the output file specified. If no output file is defined then the otuput is written to stdout. Reads that are shorter than the minimum length are not divided.
+        Divide reads in a BAM/FASTQ file into a fixed number of fragments. The output will be in FASTQ format written to the output file specified. If no output file is defined then the output is written to stdout. Reads that are shorter than the minimum length are not divided.
         """,
         formatter_class=CustomFormatter
     )
@@ -141,11 +141,11 @@ def main():
     # Subparser for the "split_samples" command
     split_parser = subparsers.add_parser(
         "split_samples",
-        help="Split BAM file by donor ID"
+        help="Split BAM or FASTQ file by donor ID"
     )
-    split_parser.add_argument("--bam", required=True, help="Input BAM file(s)", nargs='+')
+    split_parser.add_argument("--input", required=True, help="Input BAM or FASTQ file(s)", nargs='+')
     split_parser.add_argument("--tsv", required=True, help="two-column TSV file mapping barcodes to donor IDs, with headers 'barcode' and 'donor_id'")
-    split_parser.add_argument("--output-dir", default="output", help="Output directory for split BAM files (default: 'output')")
+    split_parser.add_argument("--output-dir", default="output", help="Output directory for split files (default: 'output')")
     split_parser.set_defaults(func=split_samples)
 
     # Subparser for the "extract_sample" command
