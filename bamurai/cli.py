@@ -10,6 +10,7 @@ from bamurai.chunk import *
 from bamurai.split_samples import *
 from bamurai.extract_sample import *
 from bamurai.assign_samples import *
+from bamurai.get_hto import *
 from bamurai import __version__
 
 def main():
@@ -168,6 +169,27 @@ def main():
     assign_parser.add_argument("--tsv", required=True, help="TSV file mapping barcodes to donor IDs, with headers 'barcode' and 'donor_id'")
     assign_parser.add_argument("--output", required=True, help="Output BAM file with RG tags assigned")
     assign_parser.set_defaults(func=assign_samples)
+
+    # Subparser for the "get_hto" command
+    parser_get_hto = subparsers.add_parser(
+        "get_hto",
+        help="Extract HTO information from 10x FASTQ files. ",
+        description="""
+        Extract HTO (Hashtag Oligo) information from 10x FASTQ files. Assumes that
+        the first read (R1) contains the cell barcode and UMI, and the second read
+        (R2) contains the HTO sequence. The output will be in a tab-separated
+        format with columns: read_name, cell_barcode, umi, hto.
+        """,
+        formatter_class=CustomFormatter
+    )
+    parser_get_hto.add_argument("--r1", required=True, help="FASTQ R1 file.")
+    parser_get_hto.add_argument("--r2", required=True, help="FASTQ R2 file.")
+    parser_get_hto.add_argument("--bc-len", type=int, required=True, help="Cell barcode length.")
+    parser_get_hto.add_argument("--umi-len", type=int, required=True, help="UMI length.")
+    parser_get_hto.add_argument("--output", type=str, required=True, help="Output file for HTO information.")
+    parser_get_hto.add_argument("--hashtag-len", type=int, default=15, help="Hashtag length (default: 15).")
+    parser_get_hto.add_argument("--hashtag-left-buffer", type=int, default=10, help="Hashtag left buffer (default: 10).")
+    parser_get_hto.set_defaults(func=get_hto)
 
     # Print version if "--version" is passed
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
