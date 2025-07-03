@@ -31,6 +31,8 @@ def get_hto(args):
         with open(output_file, 'w', encoding='utf-8') as out_f:
             out_f.write("read_name\tcell_barcode\tumi\thto\n")
             read_count = 0
+            log_interval = 100_000
+
             while True:
                 r1_lines = [f_r1.readline() for _ in range(4)]
                 r2_lines = [f_r2.readline() for _ in range(4)]
@@ -47,7 +49,11 @@ def get_hto(args):
 
                 out_f.write(f"{read_name}\t{cell_barcode}\t{umi}\t{hto}\n")
                 read_count += 1
-                if read_count % 100000 == 0:
+                if read_count % log_interval == 0:
                     logging.info(f"Processed {read_count} reads...")
+                    if log_interval == 100_000 and read_count >= 1_000_000:
+                        log_interval = 1_000_000
+                    elif log_interval == 1_000_000 and read_count >= 10_000_000:
+                        log_interval = 10_000_000
 
             logging.info(f"Finished HTO extraction. Total reads processed: {read_count}")
