@@ -29,7 +29,7 @@ def get_hto(args):
 
     with r1_open(r1_file, 'rt') as f_r1, r2_open(r2_file, 'rt') as f_r2:
         with open(output_file, 'w', encoding='utf-8') as out_f:
-            out_f.write("read_name\tcell_barcode\tumi\thto\n")
+            out_f.write("read_name\tcell_barcode\tumi\thto\tbc_qual\tumi_qual\thto_qual\n")
             read_count = 0
             log_interval = 100_000
 
@@ -42,12 +42,28 @@ def get_hto(args):
                 read_name = r1_lines[0].strip().split()[0][1:]  # Remove '@' and take first word
                 r1_seq = r1_lines[1].strip()
                 r2_seq = r2_lines[1].strip()
+                r1_qual = r1_lines[3].strip()
+                r2_qual = r2_lines[3].strip()
 
                 cell_barcode = r1_seq[:barcode_len]
                 umi = r1_seq[barcode_len:(barcode_len + umi_len)]
                 hto = r2_seq[hashtag_left_buffer:(hashtag_left_buffer + hashtag_len)]
 
-                out_f.write(f"{read_name}\t{cell_barcode}\t{umi}\t{hto}\n")
+                # Quality extraction and average calculation
+                bc_qual_str = r1_qual[:barcode_len]
+                umi_qual_str = r1_qual[barcode_len:(barcode_len + umi_len)]
+                hto_qual_str = r2_qual[hashtag_left_buffer:(hashtag_left_buffer + hashtag_len)]
+
+                def avg_qual(qstr):
+                    if not qstr:
+                        return 0
+                    return round(sum(ord(c) - 33 for c in qstr) / len(qstr), 2)
+
+                bc_qual = avg_qual(bc_qual_str)
+                umi_qual = avg_qual(umi_qual_str)
+                hto_qual = avg_qual(hto_qual_str)
+
+                out_f.write(f"{read_name}\t{cell_barcode}\t{umi}\t{hto}\t{bc_qual}\t{umi_qual}\t{hto_qual}\n")
                 read_count += 1
                 if read_count % log_interval == 0:
                     logging.info(f"Processed {read_count} reads...")
