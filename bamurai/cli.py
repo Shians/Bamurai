@@ -14,7 +14,13 @@ from bamurai.get_hto import *
 from bamurai import __version__
 
 def main():
-    parser = argparse.ArgumentParser(description="Bamurai: A tool for processing BAM/FASTQ files")
+    parser = argparse.ArgumentParser(
+        description="""
+        Bamurai: A tool for processing BAM/FASTQ files.
+
+        NOTE: For BAM/SAM/CRAM files, only primary alignments are processed. Secondary and supplementary alignments are ignored.
+        """
+    )
     subparsers = parser.add_subparsers(dest="command")
 
     class CustomFormatter(argparse.RawDescriptionHelpFormatter):
@@ -67,6 +73,8 @@ def main():
         - Average read length
         - Total throughput (in gigabases)
         - N50 read length
+
+        NOTE: For BAM/SAM/CRAM files, only primary alignments are processed. Secondary and supplementary alignments are ignored.
         """,
         formatter_class=CustomFormatter
     )
@@ -80,6 +88,8 @@ def main():
         help="Divide reads in a BAM/FASTQ into fixed number of fragments",
         description = """
         Divide reads in a BAM/FASTQ file into a fixed number of fragments. The output will be in FASTQ format written to the output file specified. If no output file is defined then the output is written to stdout. Reads that are shorter than the minimum length are not divided.
+
+        NOTE: For BAM/SAM/CRAM files, only primary alignments are processed. Secondary and supplementary alignments are ignored.
         """,
         formatter_class=CustomFormatter
     )

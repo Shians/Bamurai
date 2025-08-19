@@ -1,3 +1,11 @@
+
+"""
+Core parsing and read utilities for Bamurai.
+
+NOTE: This program only handles primary alignments when parsing BAM/SAM/CRAM files.
+Secondary and supplementary alignments are always ignored.
+"""
+
 import os
 import pysam
 import gzip
@@ -42,12 +50,23 @@ def qual_to_fastq_numpy(qualities):
     return (np.array(qualities, dtype=np.uint8) + 33).tobytes().decode()
 
 def parse_reads(read_file):
-    """Parse reads from a file."""
+    """
+    Parse reads from a file.
+
+    For BAM/SAM/CRAM files, only primary alignments are parsed; secondary and supplementary alignments are ignored.
+    """
     # if file is a BAM/SAM/CRAM
     if read_file.endswith(".bam") or read_file.endswith(".sam") or read_file.endswith(".cram"):
         with pysam.AlignmentFile(read_file, "rb", check_sq=False) as bam:
             for read in bam:
-                yield Read(read.query_name, read.query_sequence, qual_to_fastq_numpy(read.query_qualities))
+                if read.is_secondary or read.is_supplementary:
+                    continue
+                try:
+                    qualities = read.query_qualities
+                    yield Read(read.query_name, read.query_sequence, qual_to_fastq_numpy(qualities))
+                except Exception as e:
+                    print(f"Failed to parse BAM read: {str(read)}\nError: {e}")
+                    continue
 
     # if file is a FASTQ
     elif read_file.endswith(".fastq") or read_file.endswith(".fq"):

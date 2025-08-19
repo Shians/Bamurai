@@ -2,6 +2,8 @@
 
 A Python toolkit for manipulating BAM and FASTQ files, designed to split reads into smaller fragments, extract statistics, validate files, and manage multi-sample data.
 
+**For BAM/SAM/CRAM files, Bamurai only processes primary alignments. Secondary and supplementary alignments are ignored in all commands.** This approach ensures that each original read from sequencing is counted only once. Secondary and supplementary alignments represent alternative mappings or split alignments of the same read, not additional unique reads. Including them would artificially inflate read counts and statistics, leading to misleading results.
+
 ## Description
 
 Bamurai is a command-line tool for splitting reads in BAM/FASTQ files into smaller fragments. It is designed to be fast and efficient, and can be used to split reads into a target length or a target number of pieces per read.
