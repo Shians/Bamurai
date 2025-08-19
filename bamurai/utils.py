@@ -1,8 +1,9 @@
 import time
-import sys
+import logging
+from bamurai.logging_config import LOGGING_FORMAT, LOGGING_DATEFMT
 
-def print_elapsed_time_pretty(start_time):
-    """Print elapsed time in a pretty format."""
+def print_elapsed_time_pretty(start_time, logger=None):
+    """Log elapsed time in a pretty format."""
     elapsed_time = time.time() - start_time
 
     hours = int(elapsed_time // 3600)
@@ -12,15 +13,18 @@ def print_elapsed_time_pretty(start_time):
     else:
         seconds = int(elapsed_time % 60)
 
-    # below 5 minutes print in seconds
+    if logger is None:
+        logger = logging.getLogger("bamurai.utils")
+
+    # below 5 minutes log in seconds
     if elapsed_time < 300:
-        print(f"Time taken: {seconds}s", file=sys.stderr)
-    # below 1 hour print in minutes and seconds
+        logger.info("Time taken: %ss", seconds)
+    # below 1 hour log in minutes and seconds
     elif elapsed_time < 3600:
-        print(f"Time taken: {minutes}m {seconds}s", file=sys.stderr)
-    # above 1 hour print in hours, minutes and seconds
+        logger.info("Time taken: %dm %ds", minutes, seconds)
+    # above 1 hour log in hours, minutes and seconds
     else:
-        print(f"Time elapsed: {hours}h {minutes}m {seconds}s", file=sys.stderr)
+        logger.info("Time elapsed: %dh %dm %ds", hours, minutes, seconds)
 
 def is_fastq(path):
     """Check if a file is a FASTQ file."""

@@ -1,7 +1,9 @@
 import sys
 import time
+import logging
 from bamurai.core import *
 from bamurai.utils import print_elapsed_time_pretty
+from bamurai.logging_config import configure_logging
 
 def calculate_split_len(read, target_len: int):
     """Calculate split locations for a read given a target length"""
@@ -15,7 +17,9 @@ def calculate_split_len(read, target_len: int):
     return [i * split_size for i in range(1, split_loc)]
 
 def split_reads(args):
-    print("Running Bamurai split...", file=sys.stderr)
+    configure_logging()
+    logger = logging.getLogger("bamurai.split")
+    logger.info("Running Bamurai split...")
     start_time = time.time()
 
     total_input_reads = 0
@@ -27,17 +31,17 @@ def split_reads(args):
         "len_target": "Target length",
         "output": "Output file"
     }
-    print("Arguments:", file=sys.stderr)
+    logger.info("Arguments:")
     for arg, value in vars(args).items():
         if arg in arg_desc_dict:
-            print(f"  {arg_desc_dict[arg]}: {value}", file=sys.stderr)
+            logger.info("  %s: %s", arg_desc_dict[arg], value)
 
     # Read the input reads file
     read_lens = []
 
     # clear the output file
     if args.output:
-        f = open(args.output, "w")
+        f = open(args.output, "w", encoding="utf-8")
 
     for read in parse_reads(args.reads):
         total_input_reads += 1
@@ -60,9 +64,9 @@ def split_reads(args):
     if args.output:
         f.close()
 
-    avg_read_len = round(sum(read_lens) / len(read_lens))
-    print(f"Total input reads: {total_input_reads}", file=sys.stderr)
-    print(f"Total output reads: {total_output_reads}", file=sys.stderr)
-    print(f"Total unsplit reads: {total_unsplit_reads}", file=sys.stderr)
-    print(f"Average split read length: {avg_read_len}", file=sys.stderr)
-    print(f"Time taken: {round(time.time() - start_time, 2)} seconds", file=sys.stderr)
+    avg_read_len = round(sum(read_lens) / len(read_lens)) if read_lens else 0
+    logger.info("Total input reads: %d", total_input_reads)
+    logger.info("Total output reads: %d", total_output_reads)
+    logger.info("Total unsplit reads: %d", total_unsplit_reads)
+    logger.info("Average split read length: %d", avg_read_len)
+    logger.info("Time taken: %.2f seconds", time.time() - start_time)
