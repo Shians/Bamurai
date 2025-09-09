@@ -178,6 +178,8 @@ def main():
     assign_parser.add_argument("--bam", required=True, help="Input BAM file")
     assign_parser.add_argument("--tsv", required=True, help="TSV file mapping barcodes to donor IDs, with headers 'barcode' and 'donor_id'")
     assign_parser.add_argument("--output", required=True, help="Output BAM file with RG tags assigned")
+    assign_parser.add_argument("--barcode-column", type=str, default=None, help="Column name for barcode in TSV (default: auto-detect 'barcode' or 'cell')")
+    assign_parser.add_argument("--donor-id-column", type=str, default=None, help="Column name for donor_id in TSV (default: 'donor_id')")
     assign_parser.set_defaults(func=assign_samples)
 
     # Subparser for the "get_hto" command
