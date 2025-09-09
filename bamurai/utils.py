@@ -1,3 +1,4 @@
+import gzip
 import time
 import logging
 from bamurai.logging_config import LOGGING_FORMAT, LOGGING_DATEFMT
@@ -33,3 +34,16 @@ def is_fastq(path):
         path.endswith(".fq") or \
         path.endswith(".fastq.gz") or \
         path.endswith(".fq.gz")
+
+def smart_open(filename, mode="rt", encoding=None):
+    """Open a file normally or with gzip based on file extension. Supports text and binary modes."""
+    if filename.endswith('.gz'):
+        if 't' in mode and encoding is not None:
+            return gzip.open(filename, mode, encoding=encoding)
+        else:
+            return gzip.open(filename, mode)
+    else:
+        if 't' in mode and encoding is not None:
+            return open(filename, mode, encoding=encoding)
+        else:
+            return open(filename, mode)

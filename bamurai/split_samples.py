@@ -10,7 +10,7 @@ from bamurai.utils_samples import (
     get_read_barcode,
     concatenate_bam_files
 )
-from bamurai.utils import is_fastq
+from bamurai.utils import is_fastq, smart_open
 
 def split_bam_by_donor(
     input_bam: str,
@@ -112,12 +112,12 @@ def split_fastq_by_donor(
     for donor_id in unique_donors:
         temp_path = os.path.join(temp_dir, f"{fastq_basename}_{donor_id}_{fastq_uuid}.fastq")
         temp_files[donor_id] = temp_path
-        output_files[donor_id] = open(temp_path, "wt")
+        output_files[donor_id] = smart_open(temp_path, "wt", encoding="utf-8")
 
     # Create a temp output file for unmapped reads
     unmapped_temp_path = os.path.join(temp_dir, f"{fastq_basename}_unmapped_{fastq_uuid}.fastq")
     temp_files["unmapped"] = unmapped_temp_path
-    output_files["unmapped"] = open(unmapped_temp_path, "wt")
+    output_files["unmapped"] = smart_open(unmapped_temp_path, "wt", encoding="utf-8")
 
     # Open input FASTQ file (support gzipped files)
     open_func = gzip.open if input_fastq.endswith('.gz') else open
@@ -204,9 +204,9 @@ def split_samples(args):
                     concatenate_bam_files(temp_files_for_donor, final_output_path)
             elif filetype == 'fastq':
                 final_output_path = os.path.join(args.output_dir, f"{donor_id}.fastq")
-                with open(final_output_path, 'wt') as outfile:
+                with smart_open(final_output_path, 'wt', encoding='utf-8') as outfile:
                     for temp_file in temp_files_for_donor:
-                        with open(temp_file, 'rt') as infile:
+                        with smart_open(temp_file, 'rt', encoding='utf-8') as infile:
                             shutil.copyfileobj(infile, outfile)
                 print(f"Wrote {donor_id} FASTQ to {final_output_path}")
 

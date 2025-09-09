@@ -2,7 +2,8 @@ import sys
 import time
 import logging
 from bamurai.core import *
-from bamurai.utils import print_elapsed_time_pretty
+from bamurai.utils import print_elapsed_time_pretty, smart_open
+from bamurai.utils import smart_open
 from bamurai.logging_config import configure_logging
 
 def calculate_split_len(read, target_len: int):
@@ -41,7 +42,7 @@ def split_reads(args):
 
     # clear the output file
     if args.output:
-        f = open(args.output, "w", encoding="utf-8")
+        f = smart_open(args.output, "wt", encoding="utf-8")
 
     for read in parse_reads(args.reads):
         total_input_reads += 1

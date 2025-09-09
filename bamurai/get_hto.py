@@ -1,4 +1,5 @@
 import gzip
+from bamurai.utils import smart_open
 import logging
 from itertools import zip_longest
 
@@ -28,7 +29,7 @@ def get_hto(args):
     r2_open = gzip.open if r2_file.endswith('.gz') else open
 
     with r1_open(r1_file, 'rt') as f_r1, r2_open(r2_file, 'rt') as f_r2:
-        with open(output_file, 'w', encoding='utf-8') as out_f:
+        with smart_open(output_file, 'wt', encoding='utf-8') as out_f:
             out_f.write("read_name\tcell_barcode\tumi\thto\tbc_qual\tumi_qual\thto_qual\n")
             read_count = 0
             log_interval = 100_000
