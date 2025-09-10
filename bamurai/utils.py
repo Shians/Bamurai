@@ -53,27 +53,27 @@ def calculate_percentage(count, total):
     return (count / total * 100) if total > 0 else 0
 
 # Progress bar utilities
-def create_progress_bar_for_file(filepath, desc="Processing", unit="reads"):
-    """Create appropriate progress bar based on file type."""
+def create_progress_bar_for_file(filepath, desc="Processing", unit="reads", mininterval=0.2):
+    """Create appropriate progress bar based on file type using tqdm's built-in time buffering."""
     import os
     from tqdm import tqdm
-    
+
     if filepath.endswith(('.bam', '.sam', '.cram')):
         # BAM files: Start with unknown total, will be updated async
-        return tqdm(desc=desc, unit=unit)
+        return tqdm(desc=desc, unit=unit, mininterval=mininterval)
     elif filepath.endswith(('.fastq', '.fq', '.fastq.gz', '.fq.gz')):
         # FASTQ files: Use file size for progress
         file_size = os.path.getsize(filepath)
-        return tqdm(total=file_size, desc=desc, unit="B", unit_scale=True)
+        return tqdm(total=file_size, desc=desc, unit="B", unit_scale=True, mininterval=mininterval)
     else:
         # Unknown format: Use unknown total
-        return tqdm(desc=desc, unit=unit)
+        return tqdm(desc=desc, unit=unit, mininterval=mininterval)
 
 def count_reads_async_generic(filepath, progress_bar):
     """Count reads asynchronously for different file types."""
     import threading
     import pysam
-    
+
     def count_bam_reads():
         try:
             with pysam.AlignmentFile(filepath, "rb") as infile:
@@ -82,7 +82,7 @@ def count_reads_async_generic(filepath, progress_bar):
                 progress_bar.refresh()
         except Exception:
             pass
-    
+
     def count_fastq_reads():
         try:
             line_count = 0
@@ -94,27 +94,27 @@ def count_reads_async_generic(filepath, progress_bar):
             progress_bar.refresh()
         except Exception:
             pass
-    
+
     if filepath.endswith(('.bam', '.sam', '.cram')):
         count_func = count_bam_reads
     elif filepath.endswith(('.fastq', '.fq', '.fastq.gz', '.fq.gz')):
         count_func = count_fastq_reads
     else:
         return  # Unknown format
-    
+
     count_thread = threading.Thread(target=count_func)
     count_thread.daemon = True
     count_thread.start()
     return count_thread
 
-def create_multi_file_progress_bar(filepaths, desc="Processing files"):
-    """Create progress bar for multiple files."""
+def create_multi_file_progress_bar(filepaths, desc="Processing files", mininterval=0.2):
+    """Create progress bar for multiple files using tqdm's built-in time buffering."""
     from tqdm import tqdm
     import threading
     import pysam
-    
-    total_pbar = tqdm(desc=desc, unit="reads")
-    
+
+    total_pbar = tqdm(desc=desc, unit="reads", mininterval=mininterval)
+
     def count_all_reads():
         try:
             total = 0
@@ -130,9 +130,9 @@ def create_multi_file_progress_bar(filepaths, desc="Processing files"):
             total_pbar.refresh()
         except Exception:
             pass
-    
+
     count_thread = threading.Thread(target=count_all_reads)
     count_thread.daemon = True
     count_thread.start()
-    
+
     return total_pbar, count_thread
