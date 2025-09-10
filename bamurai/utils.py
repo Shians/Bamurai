@@ -47,3 +47,7 @@ def smart_open(filename, mode="rt", encoding=None):
             return open(filename, mode, encoding=encoding)
         else:
             return open(filename, mode)
+
+def calculate_percentage(count, total):
+    """Calculate percentage with safety check for division by zero."""
+    return (count / total * 100) if total > 0 else 0
