@@ -51,3 +51,88 @@ def smart_open(filename, mode="rt", encoding=None):
 def calculate_percentage(count, total):
     """Calculate percentage with safety check for division by zero."""
     return (count / total * 100) if total > 0 else 0
+
+# Progress bar utilities
+def create_progress_bar_for_file(filepath, desc="Processing", unit="reads"):
+    """Create appropriate progress bar based on file type."""
+    import os
+    from tqdm import tqdm
+    
+    if filepath.endswith(('.bam', '.sam', '.cram')):
+        # BAM files: Start with unknown total, will be updated async
+        return tqdm(desc=desc, unit=unit)
+    elif filepath.endswith(('.fastq', '.fq', '.fastq.gz', '.fq.gz')):
+        # FASTQ files: Use file size for progress
+        file_size = os.path.getsize(filepath)
+        return tqdm(total=file_size, desc=desc, unit="B", unit_scale=True)
+    else:
+        # Unknown format: Use unknown total
+        return tqdm(desc=desc, unit=unit)
+
+def count_reads_async_generic(filepath, progress_bar):
+    """Count reads asynchronously for different file types."""
+    import threading
+    import pysam
+    
+    def count_bam_reads():
+        try:
+            with pysam.AlignmentFile(filepath, "rb") as infile:
+                total = sum(1 for read in infile if not (read.is_secondary or read.is_supplementary))
+                progress_bar.total = total
+                progress_bar.refresh()
+        except Exception:
+            pass
+    
+    def count_fastq_reads():
+        try:
+            line_count = 0
+            with smart_open(filepath, "r") as f:
+                for _ in f:
+                    line_count += 1
+            total_reads = line_count // 4
+            progress_bar.total = total_reads
+            progress_bar.refresh()
+        except Exception:
+            pass
+    
+    if filepath.endswith(('.bam', '.sam', '.cram')):
+        count_func = count_bam_reads
+    elif filepath.endswith(('.fastq', '.fq', '.fastq.gz', '.fq.gz')):
+        count_func = count_fastq_reads
+    else:
+        return  # Unknown format
+    
+    count_thread = threading.Thread(target=count_func)
+    count_thread.daemon = True
+    count_thread.start()
+    return count_thread
+
+def create_multi_file_progress_bar(filepaths, desc="Processing files"):
+    """Create progress bar for multiple files."""
+    from tqdm import tqdm
+    import threading
+    import pysam
+    
+    total_pbar = tqdm(desc=desc, unit="reads")
+    
+    def count_all_reads():
+        try:
+            total = 0
+            for filepath in filepaths:
+                if filepath.endswith(('.bam', '.sam', '.cram')):
+                    with pysam.AlignmentFile(filepath, "rb") as infile:
+                        total += sum(1 for read in infile if not (read.is_secondary or read.is_supplementary))
+                elif filepath.endswith(('.fastq', '.fq', '.fastq.gz', '.fq.gz')):
+                    with smart_open(filepath, "r") as f:
+                        line_count = sum(1 for _ in f)
+                    total += line_count // 4
+            total_pbar.total = total
+            total_pbar.refresh()
+        except Exception:
+            pass
+    
+    count_thread = threading.Thread(target=count_all_reads)
+    count_thread.daemon = True
+    count_thread.start()
+    
+    return total_pbar, count_thread

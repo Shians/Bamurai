@@ -3,20 +3,7 @@ import csv
 import tempfile
 import shutil
 import os
-import threading
-from tqdm import tqdm
-from bamurai.utils import calculate_percentage
-
-def count_reads_async(bam_path, progress_bar):
-    """Count total reads in BAM file asynchronously and update progress bar total."""
-    try:
-        with pysam.AlignmentFile(bam_path, "rb") as infile:
-            total = sum(1 for _ in infile)
-            progress_bar.total = total
-            progress_bar.refresh()
-    except Exception:
-        # If counting fails, leave progress bar without total
-        pass
+from bamurai.utils import calculate_percentage, create_progress_bar_for_file, count_reads_async_generic
 
 def assign_samples(args):
     """
@@ -70,13 +57,11 @@ def assign_samples(args):
                 total_reads = 0
                 donor_counts = {donor_id: 0 for donor_id in donor_ids}
 
-                # Initialize progress bar with unknown total
-                pbar = tqdm(desc="Processing reads", unit="reads")
+                # Initialize progress bar using generic utility
+                pbar = create_progress_bar_for_file(args.bam, "Processing reads")
 
                 # Start background thread to count total reads
-                count_thread = threading.Thread(target=count_reads_async, args=(args.bam, pbar))
-                count_thread.daemon = True
-                count_thread.start()
+                count_thread = count_reads_async_generic(args.bam, pbar)
 
                 for read in infile:
                     total_reads += 1
