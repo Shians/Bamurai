@@ -3,6 +3,8 @@ from bamurai.core import parse_reads
 
 def calc_n50(read_lengths):
     """Calculate the N50 statistic for a list of read lengths."""
+    if not read_lengths:
+        return None
     read_lengths.sort(reverse=True)
     total_bp = sum(read_lengths)
     half_bp = total_bp / 2

@@ -1,6 +1,7 @@
 import gzip
 import time
 import logging
+from typing import TextIO, BinaryIO, Union, Optional, Any, IO
 from bamurai.logging_config import LOGGING_FORMAT, LOGGING_DATEFMT
 
 def print_elapsed_time_pretty(start_time, logger=None):
@@ -35,18 +36,26 @@ def is_fastq(path):
         path.endswith(".fastq.gz") or \
         path.endswith(".fq.gz")
 
-def smart_open(filename, mode="rt", encoding=None):
+def smart_open(filename: str, mode: str = "rt", encoding: Optional[str] = None) -> Any:
     """Open a file normally or with gzip based on file extension. Supports text and binary modes."""
-    if filename.endswith('.gz'):
-        if 't' in mode and encoding is not None:
-            return gzip.open(filename, mode, encoding=encoding)
+    try:
+        if filename.endswith('.gz'):
+            if 't' in mode and encoding is not None:
+                file_handle = gzip.open(filename, mode, encoding=encoding)
+            else:
+                file_handle = gzip.open(filename, mode)
         else:
-            return gzip.open(filename, mode)
-    else:
-        if 't' in mode and encoding is not None:
-            return open(filename, mode, encoding=encoding)
-        else:
-            return open(filename, mode)
+            if 't' in mode and encoding is not None:
+                file_handle = open(filename, mode, encoding=encoding)
+            else:
+                file_handle = open(filename, mode)
+        
+        if file_handle is None:
+            raise IOError(f"Failed to open file: {filename}")
+        
+        return file_handle
+    except Exception as e:
+        raise IOError(f"Error opening file {filename}: {e}") from e
 
 def calculate_percentage(count, total):
     """Calculate percentage with safety check for division by zero."""

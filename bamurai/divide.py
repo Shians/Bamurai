@@ -42,6 +42,8 @@ def divide_reads(args):
     # clear the output file
     if args.output:
         f = smart_open(args.output, "wt", encoding="utf-8")
+    else:
+        f = None
 
     # Create progress bar
     pbar = create_progress_bar_for_file(args.reads, "Dividing reads")
@@ -62,6 +64,7 @@ def divide_reads(args):
             read_lens.append(len(read))
 
             if args.output:
+                assert f is not None
                 f.write(read.to_fastq())
                 f.write("\n")
             else:
@@ -70,6 +73,7 @@ def divide_reads(args):
     pbar.close()
 
     if args.output:
+        assert f is not None
         f.close()
 
     avg_read_len = round(sum(read_lens) / len(read_lens)) if read_lens else 0

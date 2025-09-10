@@ -52,12 +52,12 @@ def validate_fastq(file_path):
             return False
 
         # Check
-        if not header.startswith('@'):
+        if not str(header).startswith('@'):
             print(f"Error at record {record}: Header does not start with '@'")
             pbar.close()
             f.close()
             return False
-        if not plus.startswith('+'):
+        if not str(plus).startswith('+'):
             print(f"Error at record {record}: Separator line does not start with '+'")
             pbar.close()
             f.close()
@@ -70,13 +70,13 @@ def validate_fastq(file_path):
 
         # Check that sequence contains only valid IUPAC characters
         valid_chars = 'ACGTURYKMSWBDHVNacgturykmswbhdvn'
-        if not all([c in valid_chars for c in seq]):
+        if not all([str(c) in valid_chars for c in seq]):
             print(f"Error at record {record}: Invalid sequence characters")
-            all_invalid_pos = [i for i, c in enumerate(seq) if c not in valid_chars]
+            all_invalid_pos = [i for i, c in enumerate(seq) if str(c) not in valid_chars]
             all_invalid_char = [seq[i] for i in all_invalid_pos]
 
             invalid_pos_str = ', '.join([str(i) for i in all_invalid_pos])
-            invalid_char_str = ', '.join(all_invalid_char)
+            invalid_char_str = ', '.join([str(c) for c in all_invalid_char])
 
             print(f"Offending character at positions {invalid_pos_str}, characters: {invalid_char_str}")
             pbar.close()
@@ -105,10 +105,10 @@ def validate_bam(bam_file):
     # Create progress bar
     pbar = create_progress_bar_for_file(bam_file, "Validating BAM")
     count_thread = count_reads_async_generic(bam_file, pbar)
+    record = 0
 
     try:
         # Iterate through records to ensure they can be read without error
-        record = 0
         for read in bam:
             record += 1
             pbar.update(1)

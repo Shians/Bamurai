@@ -43,7 +43,7 @@ def ensure_directory_exists(file_path: str) -> None:
     if directory and not os.path.exists(directory):
         os.makedirs(directory)
 
-def get_read_barcode(read) -> str:
+def get_read_barcode(read) -> str | None:
     """
     Extract barcode from a read by checking common barcode tags
 

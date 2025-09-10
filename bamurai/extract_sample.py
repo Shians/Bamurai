@@ -13,8 +13,8 @@ from bamurai.utils_samples import (
 def extract_reads_from_bam(
     input_bam: str,
     donor_barcodes: Set[str],
-    output_file: str = None,
-    temp_dir: str = None
+    output_file: str | None = None,
+    temp_dir: str | None = None
 ) -> tuple[int, str]:
     """
     Extract reads from a BAM file for a specific donor's barcodes
@@ -32,6 +32,8 @@ def extract_reads_from_bam(
     """
     if output_file is None:
         # Create a temporary output file in the temp directory
+        if temp_dir is None:
+            temp_dir = os.path.dirname(input_bam)
         output_file = os.path.join(temp_dir, f"{os.path.basename(input_bam)}.temp")
 
     read_count = 0

@@ -105,6 +105,9 @@ def keep_n_bases(read, n, on = "left"):
     elif on == "right":
         seq = read.sequence[(read_len - n):]
         qual = read.quality[(read_len - n):]
+    else:
+        seq = read.sequence
+        qual = read.quality
 
     return Read(read.read_id, seq, qual)
 
