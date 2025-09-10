@@ -1,7 +1,7 @@
 import time
 import logging
 from bamurai.core import parse_reads, split_read
-from bamurai.utils import print_elapsed_time_pretty, smart_open
+from bamurai.utils import print_elapsed_time_pretty, smart_open, create_progress_bar_for_file, count_reads_async_generic
 from bamurai.logging_config import configure_logging
 
 def calculate_split_pieces(read, num_pieces: int, min_length: int = 0):
@@ -43,8 +43,14 @@ def divide_reads(args):
     if args.output:
         f = smart_open(args.output, "wt", encoding="utf-8")
 
+    # Create progress bar
+    pbar = create_progress_bar_for_file(args.reads, "Dividing reads")
+    count_thread = count_reads_async_generic(args.reads, pbar)
+
     for read in parse_reads(args.reads):
         total_input_reads += 1
+        pbar.update(1)
+        
         split_locs = calculate_split_pieces(read, num_pieces=args.num_fragments, min_length=args.min_length)
         split = split_read(read, at = split_locs)
 
@@ -61,6 +67,7 @@ def divide_reads(args):
             else:
                 print(read.to_fastq())
 
+    pbar.close()
 
     if args.output:
         f.close()

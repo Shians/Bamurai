@@ -1,4 +1,5 @@
 from bamurai.core import parse_reads
+from bamurai.utils import create_progress_bar_for_file, count_reads_async_generic
 
 def chunk_reads(args):
     # Convert size string to bytes
@@ -19,7 +20,13 @@ def do_chunk(input_file, chunk_size, output_prefix):
     current_chunk = 1
     current_out = None
 
+    # Create progress bar
+    pbar = create_progress_bar_for_file(input_file, "Chunking reads")
+    count_thread = count_reads_async_generic(input_file, pbar)
+
     for read in parse_reads(input_file):
+        pbar.update(1)
+        
         # Open new file if needed
         if current_out is None:
             current_out = open(f"{output_prefix}_{current_chunk}.fastq", 'w')
@@ -35,6 +42,8 @@ def do_chunk(input_file, chunk_size, output_prefix):
             current_out.close()
             current_out = None
             current_chunk += 1
+
+    pbar.close()
 
     if current_out:
         current_out.close()

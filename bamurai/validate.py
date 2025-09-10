@@ -1,5 +1,6 @@
 import pysam
 import gzip
+from bamurai.utils import create_progress_bar_for_file, count_reads_async_generic
 
 def validate_file(args):
     """Validate a file to ensure it is correctly formatted."""
@@ -20,6 +21,10 @@ def validate_fastq(file_path):
     else:
         raise ValueError("File must be in FASTQ format.")
 
+    # Create progress bar
+    pbar = create_progress_bar_for_file(file_path, "Validating FASTQ")
+    count_thread = count_reads_async_generic(file_path, pbar)
+
     record = 0
     while True:
         header = f.readline()
@@ -30,6 +35,7 @@ def validate_fastq(file_path):
         plus = f.readline().rstrip()
         qual = f.readline().rstrip()
         record += 1
+        pbar.update(1)
 
         # Check all lines are present
         if not header or not seq or not plus or not qual:
@@ -41,17 +47,25 @@ def validate_fastq(file_path):
                 print(f"Error at record {record}: Missing separator line")
             if not qual:
                 print(f"Error at record {record}: Missing quality line")
+            pbar.close()
+            f.close()
             return False
 
         # Check
         if not header.startswith('@'):
             print(f"Error at record {record}: Header does not start with '@'")
+            pbar.close()
+            f.close()
             return False
         if not plus.startswith('+'):
             print(f"Error at record {record}: Separator line does not start with '+'")
+            pbar.close()
+            f.close()
             return False
         if len(seq) != len(qual):
             print(f"Error at record {record}: Sequence and quality lengths differ")
+            pbar.close()
+            f.close()
             return False
 
         # Check that sequence contains only valid IUPAC characters
@@ -65,9 +79,11 @@ def validate_fastq(file_path):
             invalid_char_str = ', '.join(all_invalid_char)
 
             print(f"Offending character at positions {invalid_pos_str}, characters: {invalid_char_str}")
+            pbar.close()
+            f.close()
             return False
 
-
+    pbar.close()
     f.close()
 
     print(f"{file_path} is a valid FASTQ file with {record} records.")
@@ -86,29 +102,41 @@ def validate_bam(bam_file):
         print("Missing or invalid header in BAM file.")
         return False
 
+    # Create progress bar
+    pbar = create_progress_bar_for_file(bam_file, "Validating BAM")
+    count_thread = count_reads_async_generic(bam_file, pbar)
+
     try:
         # Iterate through records to ensure they can be read without error
         record = 0
         for read in bam:
             record += 1
+            pbar.update(1)
+            
             # Minimal check: ensure required fields exist
             if read.query_name is None:
                 print(f"Error at record {record}: Missing query name")
+                pbar.close()
                 return False
             if read.query_sequence is None:
                 print(f"Error at record {record}: Missing query sequence")
+                pbar.close()
                 return False
             if read.query_qualities is None:
                 print(f"Error at record {record}: Missing query qualities")
+                pbar.close()
                 return False
             # check that the sequence and quality lengths are equal
             if len(read.query_sequence) != len(read.query_qualities):
                 print(f"Error at record {record}: Sequence and quality lengths differ")
+                pbar.close()
                 return False
 
     except Exception as e:
         print(f"Error reading BAM file at record {record}:", e)
+        pbar.close()
         return False
 
+    pbar.close()
     print(f"{bam_file} is a valid BAM file with {record} records.")
     return True

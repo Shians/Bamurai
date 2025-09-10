@@ -1,4 +1,4 @@
-from bamurai.utils import is_fastq
+from bamurai.utils import is_fastq, create_progress_bar_for_file, count_reads_async_generic
 from bamurai.core import parse_reads
 
 def calc_n50(read_lengths):
@@ -16,9 +16,17 @@ def file_read_stats(read_file):
     """Calculate statistics for a BAM or FASTQ file using parse_reads."""
     read_lengths = []
     total_reads = 0
+    
+    # Create progress bar
+    pbar = create_progress_bar_for_file(read_file, "Calculating statistics")
+    count_thread = count_reads_async_generic(read_file, pbar)
+    
     for read in parse_reads(read_file):
         read_lengths.append(len(read))
         total_reads += 1
+        pbar.update(1)
+
+    pbar.close()
 
     if not read_lengths:
         return {
