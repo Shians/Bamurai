@@ -3,21 +3,46 @@ import pandas as pd
 import os
 from typing import Dict, Set, List
 
-def parse_barcode_donor_mapping(tsv_file: str) -> Dict[str, str]:
+def parse_barcode_donor_mapping(tsv_file: str, barcode_column: str = None, donor_id_column: str = None) -> Dict[str, str]:
     """
     Parse a TSV file with barcode and donor_id columns
 
     Args:
         tsv_file: Path to TSV file containing barcode to donor mapping
+        barcode_column: Optional column name for barcodes (auto-detects 'barcode' or 'cell' if not provided)
+        donor_id_column: Optional column name for donor IDs (defaults to 'donor_id')
 
     Returns:
         Dictionary mapping barcodes to donor IDs
     """
     df = pd.read_csv(tsv_file, sep='\t')
-    if 'barcode' not in df.columns or 'donor_id' not in df.columns:
-        raise ValueError("TSV file must contain 'barcode' and 'donor_id' columns")
+    columns = df.columns.tolist()
 
-    return dict(zip(df.barcode, df.donor_id))
+    # Auto-detect barcode column
+    if barcode_column is None:
+        if 'barcode' in columns and 'cell' in columns:
+            raise ValueError("Both 'barcode' and 'cell' columns are present in the TSV. Please specify --barcode-column explicitly.")
+        elif 'barcode' in columns:
+            barcode_column = 'barcode'
+        elif 'cell' in columns:
+            barcode_column = 'cell'
+        else:
+            raise ValueError("No 'barcode' or 'cell' column found in the TSV. Please specify --barcode-column.")
+    else:
+        if barcode_column not in columns:
+            raise ValueError(f"Specified barcode column '{barcode_column}' not found in TSV. Available columns: {', '.join(columns)}")
+
+    # Auto-detect donor_id column
+    if donor_id_column is None:
+        if 'donor_id' in columns:
+            donor_id_column = 'donor_id'
+        else:
+            raise ValueError("No 'donor_id' column found in the TSV. Please specify --donor-id-column.")
+    else:
+        if donor_id_column not in columns:
+            raise ValueError(f"Specified donor_id column '{donor_id_column}' not found in TSV. Available columns: {', '.join(columns)}")
+
+    return dict(zip(df[barcode_column], df[donor_id_column]))
 
 def get_barcodes_for_donor(barcode_donor_map: Dict[str, str], donor_id: str) -> Set[str]:
     """

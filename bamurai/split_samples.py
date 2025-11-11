@@ -151,7 +151,9 @@ def split_fastq_by_donor(
 
 def split_samples(args):
     # Parse barcode-to-donor mapping
-    barcode_donor_map = parse_barcode_donor_mapping(args.tsv)
+    barcode_column = getattr(args, 'barcode_column', None)
+    donor_id_column = getattr(args, 'donor_id_column', None)
+    barcode_donor_map = parse_barcode_donor_mapping(args.tsv, barcode_column, donor_id_column)
 
     # Handle whether we received a list of files or just one
     input_files = args.input if isinstance(args.input, list) else [args.input]

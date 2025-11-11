@@ -155,8 +155,10 @@ def main():
         help="Split BAM or FASTQ file by donor ID"
     )
     split_parser.add_argument("--input", required=True, help="Input BAM or FASTQ file(s)", nargs='+')
-    split_parser.add_argument("--tsv", required=True, help="two-column TSV file mapping barcodes to donor IDs, with headers 'barcode' and 'donor_id'")
+    split_parser.add_argument("--tsv", required=True, help="TSV file mapping barcodes to donor IDs (auto-detects 'barcode' or 'cell' column and 'donor_id' column)")
     split_parser.add_argument("--output-dir", default="output", help="Output directory for split files (default: 'output')")
+    split_parser.add_argument("--barcode-column", type=str, default=None, help="Column name for barcode in TSV (default: auto-detect 'barcode' or 'cell')")
+    split_parser.add_argument("--donor-id-column", type=str, default=None, help="Column name for donor_id in TSV (default: 'donor_id')")
     split_parser.set_defaults(func=split_samples)
 
     # Subparser for the "extract_sample" command
@@ -165,9 +167,11 @@ def main():
         help="Extract all reads for a given donor_id from BAM file(s) using a barcode-to-donor mapping"
     )
     extract_parser.add_argument("--bam", required=True, help="Input BAM file(s)", nargs='+')
-    extract_parser.add_argument("--tsv", required=True, help="TSV file mapping barcodes to donor IDs, with headers 'barcode' and 'donor_id'")
+    extract_parser.add_argument("--tsv", required=True, help="TSV file mapping barcodes to donor IDs (auto-detects 'barcode' or 'cell' column and 'donor_id' column)")
     extract_parser.add_argument("--donor-id", required=True, help="Donor ID to extract")
     extract_parser.add_argument("--output", required=True, help="Output BAM file for extracted reads")
+    extract_parser.add_argument("--barcode-column", type=str, default=None, help="Column name for barcode in TSV (default: auto-detect 'barcode' or 'cell')")
+    extract_parser.add_argument("--donor-id-column", type=str, default=None, help="Column name for donor_id in TSV (default: 'donor_id')")
     extract_parser.set_defaults(func=extract_sample)
 
     # Subparser for the "assign_sample" command

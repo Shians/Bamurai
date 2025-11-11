@@ -62,9 +62,13 @@ def extract_sample(args):
             - tsv: Path to TSV file mapping barcodes to donor IDs
             - donor_id: Donor ID to extract reads for
             - output: Path to output BAM file
+            - barcode_column: Optional column name for barcodes
+            - donor_id_column: Optional column name for donor IDs
     """
     # Parse barcode-to-donor mapping
-    barcode_donor_map = parse_barcode_donor_mapping(args.tsv)
+    barcode_column = getattr(args, 'barcode_column', None)
+    donor_id_column = getattr(args, 'donor_id_column', None)
+    barcode_donor_map = parse_barcode_donor_mapping(args.tsv, barcode_column, donor_id_column)
 
     # Get barcodes for the specified donor
     donor_barcodes = get_barcodes_for_donor(barcode_donor_map, args.donor_id)
