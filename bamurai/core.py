@@ -116,8 +116,7 @@ def split_read(read, at: list[int]):
     reads = []
 
     if len(at) == 0:
-        read.read_id = f'{read.read_id}_0'
-        return [read]
+        return [Read(f'{read.read_id}_0', read.sequence, read.quality)]
 
     count = 0
     start = 0
