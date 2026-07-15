@@ -8,4 +8,10 @@ bamurai.egg-info
 data/
 notebooks/
 dist/
-tests/
+
+# Coverage artifacts
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.pytest_cache/
