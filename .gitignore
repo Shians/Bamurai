@@ -5,7 +5,7 @@ release.sh
 
 __pycache__
 bamurai.egg-info
-data/
+/data/
 notebooks/
 dist/
 
