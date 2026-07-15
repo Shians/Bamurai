@@ -116,7 +116,7 @@ def count_reads_async_generic(filepath, progress_bar):
     count_thread.start()
     return count_thread
 
-def create_multi_file_progress_bar(filepaths, desc="Processing files", mininterval=0.2):
+def create_multi_file_progress_bar(filepaths, desc="Processing files", mininterval=0.2):  # pragma: no cover
     """Create progress bar for multiple files using tqdm's built-in time buffering."""
     from tqdm import tqdm
     import threading
