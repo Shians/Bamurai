@@ -5,7 +5,7 @@ def calc_n50(read_lengths):
     """Calculate the N50 statistic for a list of read lengths."""
     if not read_lengths:
         return None
-    read_lengths.sort(reverse=True)
+    read_lengths = sorted(read_lengths, reverse=True)
     total_bp = sum(read_lengths)
     half_bp = total_bp / 2
     bp_sum = 0
