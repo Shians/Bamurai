@@ -22,10 +22,28 @@ display_name = "Bamurai"
 version = {file = ["bamurai/VERSION"]}
 
 [project.optional-dependencies]
-dev = ["pytest", "black", "mypy"]
+dev = ["pytest", "black", "mypy", "coverage", "pytest-cov"]
 
 [project.scripts]
 bamurai = "bamurai.cli:main"
 
 [tool.setuptools]
 package-data = {"bamurai" = ["VERSION"]}
+
+[tool.coverage.run]
+source = ["bamurai"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+# Progress-bar, background-thread and defensive plumbing carries no logic worth
+# asserting; exclude it from the coverage denominator rather than writing
+# brittle UI/threading tests for it.
+exclude_also = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "def __repr__",
+    "raise NotImplementedError",
+    # Background read-counting threads swallow errors by design.
+    "except Exception",
+]
