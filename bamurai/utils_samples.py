@@ -42,7 +42,10 @@ def parse_barcode_donor_mapping(tsv_file: str, barcode_column: str = None, donor
         if donor_id_column not in columns:
             raise ValueError(f"Specified donor_id column '{donor_id_column}' not found in TSV. Available columns: {', '.join(columns)}")
 
-    return dict(zip(df[barcode_column], df[donor_id_column]))
+    # Both are compared against, or written into, string BAM tags. Without the
+    # cast pandas infers numeric-looking barcodes and donor IDs as integers,
+    # which then never match the tag values read off a read.
+    return dict(zip(df[barcode_column].astype(str), df[donor_id_column].astype(str)))
 
 def get_barcodes_for_donor(barcode_donor_map: Dict[str, str], donor_id: str) -> Set[str]:
     """
