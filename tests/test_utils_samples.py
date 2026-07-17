@@ -55,6 +55,12 @@ class TestParseBarcodeDonorMapping:
             parse_barcode_donor_mapping(
                 data_path("mapping.tsv"), barcode_column="missing")
 
+    def test_numeric_values_parse_as_strings(self):
+        # All-digit barcodes/donor IDs must not be inferred as integers: they are
+        # matched against, and written into, string BAM tags.
+        assert parse_barcode_donor_mapping(data_path("numeric_barcodes.tsv")) == {
+            "1234": "1", "5678": "2"}
+
 
 class TestGetBarcodesForDonor:
     def test_filters_by_donor(self):
@@ -81,19 +87,26 @@ class TestGetReadBarcode:
         tags = [(tag, "AAACCC", "Z")] if tag else None
         return make_segment(header, "r", "ACGT", [30, 30, 30, 30], tags=tags)
 
-    @pytest.mark.parametrize("tag", ["CB", "XC", "BC"])
-    def test_reads_known_tags(self, tag):
+    @pytest.mark.parametrize("tag", ["CB", "CR", "XC"])
+    def test_reads_cell_barcode_tags(self, tag):
         assert get_read_barcode(self._read(tag)) == "AAACCC"
+
+    @pytest.mark.parametrize("tag", ["BC", "RX"])
+    def test_ignores_non_cell_barcode_tags(self, tag):
+        # BC identifies a sample and RX a molecule (the UMI); neither names a
+        # cell, so neither may stand in for a cell barcode.
+        assert get_read_barcode(self._read(tag)) is None
 
     def test_no_barcode_returns_none(self):
         assert get_read_barcode(self._read(None)) is None
 
-    def test_tag_precedence_cb_over_bc(self):
-        # CB is checked before BC, so CB wins when both are present.
+    def test_tag_precedence_cb_over_cr(self):
+        # CB is the corrected barcode and is checked before the raw CR, so CB
+        # wins when both are present.
         header = default_bam_header()
         read = make_segment(
             header, "r", "ACGT", [30, 30, 30, 30],
-            tags=[("CB", "FROMCB", "Z"), ("BC", "FROMBC", "Z")],
+            tags=[("CB", "FROMCB", "Z"), ("CR", "FROMCR", "Z")],
         )
         assert get_read_barcode(read) == "FROMCB"
 

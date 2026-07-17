@@ -99,6 +99,11 @@ def write_mapping_variants(out_dir):
     with open(p("custom_columns.tsv"), "w") as f:
         f.write("bc\tsample\nAAA\td1\n")
 
+    # Purely numeric barcodes and donor IDs. These must survive parsing as
+    # strings; inferred as integers they would never match a BAM tag value.
+    with open(p("numeric_barcodes.tsv"), "w") as f:
+        f.write("barcode\tdonor_id\n1234\t1\n5678\t2\n")
+
 
 # ---------------------------------------------------------------------------
 # FASTQ inputs (valid, malformed, and the unsupported-extension case)
@@ -187,7 +192,8 @@ def write_crafted_bams(out_dir):
     def p(name):
         return os.path.join(out_dir, name)
 
-    # A read carrying only an RX tag (assign_samples CB->RX fallback).
+    # A read carrying only an RX tag. RX is the UMI, not a cell barcode, so this
+    # read must stay unassigned even though its value matches donor1's barcode.
     write_bam(p("rx.bam"), [{
         "name": "rx_read_0",
         "sequence": make_sequence(80, seed=0),
@@ -196,7 +202,8 @@ def write_crafted_bams(out_dir):
         "tags": [("RX", DONOR1_BARCODE, "Z")],
     }])
 
-    # A read carrying both CB (donor1) and RX (donor2): CB must win.
+    # A read carrying both CB (donor1) and RX (donor2): CB names the cell, so
+    # donor1 must win and the RX value must be ignored.
     write_bam(p("both_tags.bam"), [{
         "name": "both_tags_read",
         "sequence": make_sequence(80, seed=0),
@@ -262,6 +269,9 @@ _MANIFEST = {
         "Mapping TSV with no 'donor_id' column (-> error).",
     "custom_columns.tsv":
         "Mapping TSV with custom 'bc'/'sample' column names.",
+    "numeric_barcodes.tsv":
+        "Mapping TSV whose barcodes and donor IDs are all digits (must parse "
+        "as strings, not integers).",
     "bad_header.fastq":
         "Malformed FASTQ: header missing leading '@'.",
     "bad_separator.fastq":

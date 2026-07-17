@@ -24,6 +24,7 @@ EXPECTED_FILES = {
     # barcode->donor mapping TSVs (incl. column-detection variants)
     "mapping.tsv", "cell_donor.tsv", "both_columns.tsv",
     "missing_barcode.tsv", "missing_donor.tsv", "custom_columns.tsv",
+    "numeric_barcodes.tsv",
     # malformed / edge-case FASTQ inputs (+ unsupported extension)
     "bad_header.fastq", "bad_separator.fastq", "length_mismatch.fastq",
     "invalid_chars.fastq", "truncated.fastq", "empty.fastq",

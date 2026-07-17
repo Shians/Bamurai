@@ -169,9 +169,11 @@ class TestAssignSamples:
         assert rg_by_name["bc_read_2"] == "donor2"
         assert rg_by_name["bc_read_4"] is None  # unknown barcode, unassigned
 
-    def test_barcode_from_rx_tag(self, tmp_path, barcode_donor_tsv, make_args):
-        # assign_samples falls back to the RX tag when CB is absent.
-        # rx.bam holds a single read tagged RX=<donor1 barcode>.
+    def test_rx_tag_does_not_assign_a_donor(self, tmp_path, barcode_donor_tsv,
+                                            make_args):
+        # RX holds the UMI, not a cell barcode, so it cannot name a donor even
+        # when its value happens to match one. rx.bam holds a single read
+        # tagged RX=<donor1 barcode>; it must come back unassigned.
         out = tmp_path / "assigned.bam"
         args = make_args(
             bam=data_path("rx.bam"), tsv=barcode_donor_tsv, output=str(out),
@@ -181,12 +183,12 @@ class TestAssignSamples:
 
         with pysam.AlignmentFile(str(out), "rb") as bam:
             read = next(iter(bam))
-            assert read.get_tag("RG") == "donor1"
+            assert not read.has_tag("RG")
 
-    def test_cb_takes_precedence_over_rx(self, tmp_path, barcode_donor_tsv,
-                                         make_args):
-        # CB is checked before RX; when both are present CB decides the donor.
-        # both_tags.bam holds a read with CB=donor1 barcode and RX=donor2 barcode.
+    def test_rx_ignored_when_cb_present(self, tmp_path, barcode_donor_tsv,
+                                        make_args):
+        # both_tags.bam holds a read with CB=donor1 barcode and RX=donor2
+        # barcode. CB names the cell, so donor1 wins and RX is never consulted.
         out = tmp_path / "assigned.bam"
         args = make_args(
             bam=data_path("both_tags.bam"), tsv=barcode_donor_tsv,
@@ -197,6 +199,42 @@ class TestAssignSamples:
         with pysam.AlignmentFile(str(out), "rb") as bam:
             read = next(iter(bam))
             assert read.get_tag("RG") == "donor1"
+
+    def test_rg_header_order_is_deterministic(self, barcoded_bam_file,
+                                              barcode_donor_tsv, tmp_path,
+                                              make_args):
+        # RG records are emitted in sorted donor order, not set-iteration order,
+        # so the same input always yields the same header.
+        out = tmp_path / "assigned.bam"
+        args = make_args(
+            bam=barcoded_bam_file, tsv=barcode_donor_tsv, output=str(out),
+            barcode_column=None, donor_id_column=None,
+        )
+        assign_samples(args)
+
+        with pysam.AlignmentFile(str(out), "rb") as bam:
+            rg_ids = [rg["ID"] for rg in bam.header.to_dict()["RG"]]
+        assert rg_ids == sorted(rg_ids)
+
+    def test_rerun_does_not_duplicate_rg_records(self, barcoded_bam_file,
+                                                 barcode_donor_tsv, tmp_path,
+                                                 make_args):
+        # Feeding an already-tagged BAM back in must not append a second copy of
+        # each RG record: @RG.ID has to stay unique.
+        first = tmp_path / "pass1.bam"
+        second = tmp_path / "pass2.bam"
+        assign_samples(make_args(
+            bam=barcoded_bam_file, tsv=barcode_donor_tsv, output=str(first),
+            barcode_column=None, donor_id_column=None,
+        ))
+        assign_samples(make_args(
+            bam=str(first), tsv=barcode_donor_tsv, output=str(second),
+            barcode_column=None, donor_id_column=None,
+        ))
+
+        with pysam.AlignmentFile(str(second), "rb") as bam:
+            rg_ids = [rg["ID"] for rg in bam.header.to_dict()["RG"]]
+        assert rg_ids == sorted(set(rg_ids))
 
     def test_missing_donor_column_raises(self, barcoded_bam_file, tmp_path,
                                          make_args):

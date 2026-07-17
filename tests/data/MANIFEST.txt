@@ -53,6 +53,8 @@ noqual.bam
     BAM record with a sequence but absent qualities (validation rejects).
 noseq.bam
     BAM record with a name but no sequence (validation must reject).
+numeric_barcodes.tsv
+    Mapping TSV whose barcodes and donor IDs are all digits (must parse as strings, not integers).
 reads.bam
     5 primary reads (same as reads.fastq) PLUS 1 secondary (flag 256) and 1 supplementary (flag 2048) record that parse_reads must ignore.
 reads.fastq
