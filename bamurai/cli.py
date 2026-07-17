@@ -58,7 +58,8 @@ def main():
         formatter_class=CustomFormatter
     )
     parser_split.add_argument("reads", type=str, help=input_read_arg_description)
-    parser_split.add_argument("-l", "--len_target", type=int, help="Target length for splitting reads")
+    parser_split.add_argument("-l", "--len-target", type=int, help="Target length for splitting reads")
+    parser_split.add_argument("--len_target", dest="len_target", type=int, help=argparse.SUPPRESS)
     parser_split.add_argument("-o", "--output", type=str, nargs='?', help=output_file_arg_description)
     parser_split.set_defaults(func=split_reads)
 
@@ -94,8 +95,10 @@ def main():
         formatter_class=CustomFormatter
     )
     parser_divide.add_argument("reads", type=str, help=input_read_arg_description)
-    parser_divide.add_argument("-n", "--num_fragments", type=int, help="Number of fragments to divide reads into (default = 2)", default=2)
-    parser_divide.add_argument("-m", "--min_length", type=int, help="Minimum length for a fragment, reads will not be divided if resultant length is less than this (default = 100)", default=100)
+    parser_divide.add_argument("-n", "--num-fragments", type=int, help="Number of fragments to divide reads into (default = 2)", default=2)
+    parser_divide.add_argument("--num_fragments", dest="num_fragments", type=int, help=argparse.SUPPRESS)
+    parser_divide.add_argument("-m", "--min-length", type=int, help="Minimum length for a fragment, reads will not be divided if resultant length is less than this (default = 100)", default=100)
+    parser_divide.add_argument("--min_length", dest="min_length", type=int, help=argparse.SUPPRESS)
     parser_divide.add_argument("-o", "--output", type=str, nargs='?', help=output_file_arg_description)
     parser_divide.set_defaults(func=divide_reads)
 
@@ -194,7 +197,8 @@ def main():
         Extract HTO (Hashtag Oligo) information from 10x FASTQ files. Assumes that
         the first read (R1) contains the cell barcode and UMI, and the second read
         (R2) contains the HTO sequence. The output will be in a tab-separated
-        format with columns: read_name, cell_barcode, umi, hto.
+        format with columns: read_name, cell_barcode, umi, hto, bc_qual, umi_qual,
+        hto_qual.
         """,
         formatter_class=CustomFormatter
     )
