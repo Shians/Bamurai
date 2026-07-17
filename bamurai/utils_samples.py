@@ -68,9 +68,16 @@ def ensure_directory_exists(file_path: str) -> None:
     if directory and not os.path.exists(directory):
         os.makedirs(directory)
 
+# Cell barcode tags in order of preference. Per the SAM tag spec CB is the
+# optionally-corrected cell barcode and CR its uncorrected form. XC is not in the
+# spec (X* is reserved for local use) but is the Drop-seq/early-10x convention.
+# BC and RX are deliberately absent: BC identifies a sample and RX a molecule
+# (the UMI), so neither names the cell a donor is assigned to.
+CELL_BARCODE_TAGS = ('CB', 'CR', 'XC')
+
 def get_read_barcode(read) -> str | None:
     """
-    Extract barcode from a read by checking common barcode tags
+    Extract the cell barcode from a read, checking CB, then CR, then XC
 
     Args:
         read: A pysam aligned segment (read)
@@ -78,7 +85,7 @@ def get_read_barcode(read) -> str | None:
     Returns:
         The barcode string or None if no barcode is found
     """
-    for tag in ('CB', 'XC', 'BC'):  # Common barcode tags
+    for tag in CELL_BARCODE_TAGS:
         if read.has_tag(tag):
             return read.get_tag(tag)
     return None
