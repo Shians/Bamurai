@@ -18,8 +18,17 @@ python -m pytest
 # Run specific test file
 python -m pytest tests/test_core.py
 
-# Run specific test
-python -m pytest tests/test_core.py::test_function_name
+# Run a specific class or test (tests are organised into classes)
+python -m pytest tests/test_core.py::TestSplitRead
+python -m pytest tests/test_core.py::TestSplitRead::test_single_split
+
+# Run with coverage (config lives in pyproject.toml)
+python -m pytest --cov=bamurai --cov-report=term-missing
+
+# Regenerate the static test inputs in tests/data/
+# REQUIRED after changing tests/generate_test_data.py or any builder in
+# tests/conftest.py -- otherwise the drift guard test fails. See "Testing".
+python tests/generate_test_data.py
 ```
 
 ### Building and Installing
@@ -62,6 +71,7 @@ mypy bamurai/
   - Only processes primary alignments for BAM files (filters out secondary/supplementary)
   - Returns `Read` objects with standardized structure
 - `split_read()`: Splits a read at specified positions, appends fragment indices to read IDs
+  - Returns new `Read` objects; does not mutate the input read
 - `qual_to_fastq_numpy()`: Converts pysam quality scores to FASTQ quality strings
 
 **bamurai/cli.py**: Command-line interface with argparse
@@ -81,7 +91,9 @@ mypy bamurai/
 
 **bamurai/stats.py**: Calculate file statistics
 - `file_read_stats()`: Returns total reads, average length, throughput, N50
-- `calc_n50()`: Standard N50 calculation
+  - For an empty file returns zeroed stats with `n50: 0` (for display), which
+    differs from `calc_n50([])` returning `None`
+- `calc_n50()`: Standard N50 calculation; sorts a copy, does not mutate the input list
 - Supports TSV output format for computational analysis
 
 **bamurai/validate.py**: File integrity validation
@@ -163,6 +175,56 @@ BAM files store quality scores as integers; FASTQ uses ASCII characters. Use `qu
 4. Track all temp files in defaultdict
 5. Concatenate temp files into final donor-specific outputs
 6. Temp directory auto-cleaned via context manager
+
+## Testing
+
+### Static Test Inputs (important)
+
+Tests read their inputs from **committed static files** in `tests/data/`. They do
+*not* fabricate inputs per-test. Consequences:
+
+- `tests/data/` is **tracked in git**, not ignored. The root `.gitignore` entry is
+  anchored as `/data/` precisely so it does not also match `tests/data/`.
+- `tests/generate_test_data.py` is the single source of truth for every file in
+  `tests/data/`, built from the shared builders in `tests/conftest.py`.
+- **After changing the generator or any builder, run `python tests/generate_test_data.py`.**
+  `test_committed_data_matches_generator` regenerates into a temp dir and compares
+  against `tests/data/`, failing if they diverge. It compares `.gz` files
+  *decompressed* (gzip embeds an mtime, so raw bytes differ between runs);
+  everything else, including BAM/BGZF (which uses mtime 0), is byte-compared.
+- Every file in `tests/data/` must have an entry in `generate_test_data._MANIFEST`
+  (enforced by `test_generate_writes_expected_files`).
+- Tests **read** static inputs and **write** outputs only to pytest's `tmp_path`.
+  Never write into `tests/data/`.
+
+### tests/conftest.py
+
+- `data_path(name)`: absolute path to a file in `tests/data/`
+- Fixtures returning static paths: `fastq_file`, `fastq_gz_file`, `bam_file`,
+  `barcoded_bam_file`, `barcode_donor_tsv`
+- `make_args`: factory building an argparse-like namespace for calling command
+  functions directly, bypassing the CLI
+- Shared constants: `DONOR1_BARCODE`, `DONOR2_BARCODE`, `HTO_BARCODE`, `HTO_UMI`,
+  `HTO_HASHTAG`, `HTO_LEFT_BUFFER` (kept in sync with the generated files)
+- Deterministic builders (`make_sequence`, `write_fastq`, `write_bam`,
+  `make_segment`, `default_bam_specs`, ...) used by `generate_test_data.py` and by
+  unit tests that construct in-memory objects
+
+### Conventions
+
+- Functions taking **objects** rather than files are tested with constructed
+  objects, not static files (e.g. `get_read_barcode(read)`, `calc_n50(list)`,
+  `split_read(read, at)`). Only *file* inputs are static.
+- The BAM fixture deliberately contains one secondary (flag 256) and one
+  supplementary (flag 2048) record so the primary-only contract is falsifiable
+  rather than assumed.
+- Read-transforming commands are covered by an invariant test asserting total
+  bases in == total bases out.
+- Coverage deliberately excludes plumbing that carries no logic worth asserting:
+  progress bars, background counting threads, `except Exception` handlers, and
+  `# pragma: no cover` blocks (see `[tool.coverage.report] exclude_also` in
+  `pyproject.toml`). Prefer excluding such code over writing brittle
+  UI/threading tests for it.
 
 ## Version Management
 
