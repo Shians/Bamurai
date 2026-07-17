@@ -24,11 +24,16 @@ def assign_samples(args):
     try:
         with pysam.AlignmentFile(args.bam, "rb") as infile:
             header = infile.header.to_dict()
-            # Add RG records for each donor_id
-            donor_ids = set(barcode_to_donor.values())
+            # Add an RG record per donor. Sorted so a given input always yields a
+            # byte-identical header, and skipping IDs the input already carries
+            # keeps @RG.ID unique (as the SAM spec requires) when a tagged BAM is
+            # passed back through.
+            donor_ids = sorted(set(barcode_to_donor.values()))
             header.setdefault('RG', [])
+            existing_rg_ids = {rg['ID'] for rg in header['RG'] if 'ID' in rg}
             for donor_id in donor_ids:
-                header['RG'].append({'ID': donor_id, 'SM': donor_id})
+                if donor_id not in existing_rg_ids:
+                    header['RG'].append({'ID': donor_id, 'SM': donor_id})
             with pysam.AlignmentFile(tmp_output, "wb", header=header) as outfile:
                 no_match_count = 0
                 total_reads = 0
@@ -44,13 +49,7 @@ def assign_samples(args):
                     total_reads += 1
                     pbar.update(1)
 
-                    # Extract barcode (assume in CB tag or RX tag)
-                    barcode = None
-
-                    if read.has_tag('CB'):
-                        barcode = read.get_tag('CB')
-                    elif read.has_tag('RX'):
-                        barcode = read.get_tag('RX')
+                    barcode = get_read_barcode(read)
 
                     if barcode and (barcode in barcode_to_donor):
                         donor_id = barcode_to_donor[barcode]
