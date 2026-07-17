@@ -47,9 +47,9 @@ python -m build
 ```bash
 # After installation, use the CLI directly
 bamurai --help
-bamurai split input.bam --len_target 10000 --output output.fastq
+bamurai split input.bam --len-target 10000 --output output.fastq
 bamurai stats input.bam
-bamurai divide input.bam --num_fragments 2 --output output.fastq
+bamurai divide input.bam --num-fragments 2 --output output.fastq
 ```
 
 ### Code Quality
@@ -140,7 +140,12 @@ mypy bamurai/
   - Auto-detects 'donor_id' column for donor IDs
   - Raises error if both 'barcode' and 'cell' present without explicit specification
   - Accepts optional `barcode_column` and `donor_id_column` parameters for custom column names
-- `get_read_barcode()`: Extracts barcode from read tags (CB, XC, or BC)
+- `get_read_barcode()`: Extracts the cell barcode from read tags (CB, then CR, then XC)
+  - Per the SAM tag spec CB is the corrected cell barcode and CR its raw form; XC
+    is the non-standard Drop-seq/early-10x convention. BC (sample index) and RX
+    (UMI) are excluded by design — they do not name a cell
+  - Used by `split_samples`, `extract_sample` and `assign_samples`, so all
+    commands resolve a read's donor identically
 - `concatenate_bam_files()`: Merges multiple BAM files using pysam
 
 **bamurai/logging_config.py**: Centralized logging configuration
