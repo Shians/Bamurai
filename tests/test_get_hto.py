@@ -42,6 +42,25 @@ class TestGetHto:
         assert float(row["umi_qual"]) == 40.0
         assert float(row["hto_qual"]) == 40.0
 
+    def test_empty_segment_quality_is_zero(self, tmp_path, make_args):
+        # A left buffer past the end of R2 (only ~30bp) yields an empty HTO
+        # segment; avg_qual("") must return 0 rather than divide by zero.
+        out = tmp_path / "hto.tsv"
+        args = make_args(
+            r1=data_path("hto_R1.fastq"), r2=data_path("hto_R2.fastq"),
+            bc_len=16, umi_len=12, output=str(out),
+            hashtag_len=15, hashtag_left_buffer=40,
+        )
+        get_hto(args)
+
+        with open(str(out)) as f:
+            row = next(csv.DictReader(f, delimiter="\t"))
+        assert row["hto"] == ""
+        assert float(row["hto_qual"]) == 0.0
+        # The R1-derived segments are unaffected by the R2 buffer.
+        assert float(row["bc_qual"]) == 40.0
+        assert float(row["umi_qual"]) == 40.0
+
     def test_gzipped_input(self, tmp_path, make_args):
         # get_hto must transparently read gzipped R1/R2 files.
         out = tmp_path / "hto.tsv"

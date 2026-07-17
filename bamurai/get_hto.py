@@ -66,7 +66,9 @@ def get_hto(args):
 
                 out_f.write(f"{read_name}\t{cell_barcode}\t{umi}\t{hto}\t{bc_qual}\t{umi_qual}\t{hto_qual}\n")
                 read_count += 1
-                if read_count % log_interval == 0:
+                # Progress logging only; first fires at 100k reads, so it is
+                # impractical to exercise from tests.
+                if read_count % log_interval == 0:  # pragma: no cover
                     logging.info(f"Processed {read_count} reads...")
                     if log_interval == 100_000 and read_count >= 1_000_000:
                         log_interval = 1_000_000
