@@ -93,24 +93,6 @@ def parse_reads(read_file):
                 yield Read(read_id[1:], sequence, quality)
 
 
-def keep_n_bases(read, n, on = "left"):
-    """Trim n bases of a read."""
-    read_len = len(read)
-
-    if n > read_len:
-        return read
-    elif on == "left":
-        seq = read.sequence[:n]
-        qual = read.quality[:n]
-    elif on == "right":
-        seq = read.sequence[(read_len - n):]
-        qual = read.quality[(read_len - n):]
-    else:
-        seq = read.sequence
-        qual = read.quality
-
-    return Read(read.read_id, seq, qual)
-
 def split_read(read, at: list[int]):
     """Split a read at a given positions."""
     reads = []
