@@ -11,6 +11,7 @@ from bamurai.split_samples import *
 from bamurai.extract_sample import *
 from bamurai.assign_samples import *
 from bamurai.get_hto import *
+from bamurai.add_tags import *
 from bamurai import __version__
 
 def main():
@@ -210,6 +211,25 @@ def main():
     parser_get_hto.add_argument("--hashtag-len", type=int, default=15, help="Hashtag length (default: 15).")
     parser_get_hto.add_argument("--hashtag-left-buffer", type=int, default=10, help="Hashtag left buffer (default: 10).")
     parser_get_hto.set_defaults(func=get_hto)
+
+    # Subparser for the "add_tags" command
+    parser_add_tags = subparsers.add_parser(
+        "add_tags",
+        help="Tag BAM reads with values from a TSV keyed by read_id",
+        description="""
+        Tag reads in a BAM/CRAM/SAM file using values from a TSV file. The TSV
+        must have a header row with a 'read_id' column plus one column per tag
+        to apply, where each tag column name is a 2-letter BAM tag (e.g., XX,
+        RG). Tag values are auto-typed as int, float, or string. Reads not
+        found in the TSV, or with a blank cell for a given tag column, are
+        left untagged for that tag. Only primary alignments are tagged.
+        """,
+        formatter_class=CustomFormatter
+    )
+    parser_add_tags.add_argument("--bam", required=True, help="Input BAM/CRAM/SAM file")
+    parser_add_tags.add_argument("--tsv", required=True, help="TSV file with a 'read_id' column and one column per tag to apply")
+    parser_add_tags.add_argument("--output", required=True, help="Output BAM/CRAM/SAM file")
+    parser_add_tags.set_defaults(func=add_tags)
 
     # Print version if "--version" is passed
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")

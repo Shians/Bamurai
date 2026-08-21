@@ -18,6 +18,7 @@ These are the current features of Bamurai:
 6. Splitting or extracting reads by donor ID using a barcode mapping
    (`split_samples`, `extract_sample`, `assign_samples`)
 7. Extracting hashtag oligo (HTO) information from 10x FASTQ pairs (`get_hto`)
+8. Tagging BAM reads with arbitrary values from a TSV keyed by read ID (`add_tags`)
 
 The `split` command splits reads into a target length, each read will be split into fragments as close to the target length as possible. Reads shorter than the target length will not be split.
 
@@ -218,4 +219,18 @@ bamurai get_hto --r1 sample_R1.fastq.gz --r2 sample_R2.fastq.gz \
 `--bc-len` and `--umi-len` give the barcode and UMI lengths in R1, and are required. The output is a tab-separated file with the columns `read_name`, `cell_barcode`, `umi`, `hto`, `bc_qual`, `umi_qual` and `hto_qual`, where the three `_qual` columns carry the FASTQ quality strings for the preceding sequences.
 
 Where in R2 the hashtag is read from can be adjusted with `--hashtag-len` (how many bases to take, default 15) and `--hashtag-left-buffer` (how many bases to skip first, default 10).
+
+### Tagging reads from a TSV
+
+To tag reads in a BAM file with values from a TSV, keyed by read_id:
+```bash
+bamurai add_tags --bam input.bam --tsv tags.tsv --output tagged.bam
+```
+
+The TSV must have a header row with a `read_id` column plus one column per
+tag, where each tag column name is the 2-letter BAM tag to apply (e.g., `XX`,
+`RG`) — every column besides `read_id` is applied as a tag. Tag values are
+auto-typed as int, float, or string. Reads not found in the TSV, or with a
+blank cell for a given tag column, are left untagged for that tag. Only
+primary alignments are tagged.
 
